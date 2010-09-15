@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:tmasao@acm.org" />
+<link rel="stylesheet" href="default.css" type="text/css" />
+<title>JuNii2 Validator</title>
+</head>
+<body>
+<!-- hhmts start -->
+<div class="last-update">最終更新日: 2010年09月15日</div>
+<!-- hhmts end -->
+<h1>JuNii2 Validator</h1>
+<div class="form">
+<form action="<%=h @cgi.script_name %>" method="get" name="url">
+<input type="text" name="url" value="<%=h( url || "http://" ) %>" size="70" />
+<input type="submit" value="  Validate!  " />
+</form>
+</div>
+<% if data %>
+<p class="error">
+<% if data[ :error ] %>
+<% end %>
+</p>
+<% else %>
+<div class="help-text">
+<p>
+OAI-PMHのJuNii2メタデータに則ったXML形式を出力しているか、XML Schemaにもとづき、データの妥当性検証を行います。
+上の入力欄に OAI-PMH サーバの「ベースURL」（baseURL）を入力してください。
+</p>
+<% end %>
+<hr />
+<div id="footer">
+<address>高久雅生 (Masao Takaku)<br />
+</div>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-389547-4";
+urchinTracker();
+</script>
+</body>
+</html>

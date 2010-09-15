@@ -74,14 +74,20 @@ class JuNii2Validator
                              "oai:http://www.openarchives.org/OAI/2.0/" )
          result[ :warn ] << "ListRecords returned zero records." if element.empty?
          element.each do |e|
+            # metadata = e.find("./metadata")[0]
+            # next if metadata.nil?
+            # STDERR.puts metadata.first.class
             metadata = e.child
             doc = LibXML::XML::Document.string( metadata.to_s )
             begin
                doc.validate_schema( @xml_schema )
             rescue LibXML::XML::Error => err
                # err.message
-               result[ :error ] << "XML Schema error: #{ err.message }}" +
-                  "\n\tfor http://hdl.handle.net/2115/328"
+               result[ :error ] << {
+                  :message => "XML Schema error: #{ err.message }",
+                  :identifier => e.parent.find( "./oai:header/oai:identifier",
+                                                "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+               }
             end
          end
       end

@@ -14,9 +14,8 @@ class JuNii2Validator
    attr_reader :baseurl
    def initialize( url )
       @baseurl = URI.parse( url )
-
       xsd_uri = URI.parse( JUNII2_XSD )
-      res, = Net::HTTP.new( xsd_uri.host, xsd_uri.port ).get( xsd_uri.path )
+      res, = http( xsd_uri ).get( xsd_uri.request_uri )
       parser = LibXML::XML::Parser.string( res.body )
       @xml_schema = LibXML::XML::Schema.document( parser.parse )
    end
@@ -27,8 +26,7 @@ class JuNii2Validator
          :error=> [],
          :info => [],
       }
-      http = Net::HTTP.new( @baseurl.host, @baseurl.port )
-      http.start do |con|
+      http( @baseurl ).start do |con|
          # Identify
          res, = con.get( "#{ @baseurl.path }?verb=Identify" )
          xml = res.body
@@ -92,6 +90,20 @@ class JuNii2Validator
          end
       end
       result
+   end
+
+   private
+   def http( uri )
+      http_proxy = ENV[ "http_proxy" ]
+      proxy, proxy_port = nil
+      if http_proxy
+         proxy_uri = URI.parse( http_proxy )
+         proxy = proxy_uri.host
+         proxy_port = proxy_uri.port
+      end
+      http = Net::HTTP.Proxy( proxy, proxy_port ).new( uri.host, uri.port )
+      http.use_ssl = true if uri.scheme == "https"      
+      http
    end
 end
 

@@ -19,19 +19,27 @@
 <input type="submit" value="  Validate!  " />
 </form>
 </div>
-<% if data %>
-<p class="error">
-<% if data[ :error ] %>
-<% end %>
-</p>
-<% else %>
 <div class="help-text">
 <p>
 OAI-PMHサーバが、JuNii2メタデータに則ったXML形式を出力しているかを、XML Schemaにもとづいた、データの妥当性検証により確認します。
-上の入力欄に OAI-PMH サーバの「ベースURL」（baseURL）を入力してください。
+上記の入力欄に OAI-PMH サーバの「ベースURL」（baseURL）を入力してください。
 </p>
 </div>
+<% if data %>
+<div id="message">
+<% data.keys.each do |k| %>
+<% next if data[ k ].empty? %>
+<div id="<%=h k %>">
+<h2><%=h k.to_s.capitalize %> : <%=h data[ k ].size %></h2>
+<ol>
+<% data[ k ].each do |e| %>
+  <li><%=h e %>
 <% end %>
+</ol>
+</div>
+<% end %>
+<% end %>
+</p>
 <hr />
 <div id="footer">
 <address>高久雅生 (Masao Takaku)<br />

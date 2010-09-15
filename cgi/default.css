@@ -30,3 +30,10 @@ input { padding: 2px; }
   margin-left: auto;
   margin-right: auto;
 }
+
+#error {
+  background-color: pink;
+}
+#warn {
+  background-color: #ff5;
+}

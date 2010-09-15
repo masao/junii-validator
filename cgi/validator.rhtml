@@ -35,7 +35,7 @@ OAI-PMHサーバが、JuNii2メタデータに則ったXML形式を出力して�
 <% data[ k ].each do |e| %>
   <% if e.kind_of?( Hash ) %>
   <li><%=h e[ :message ] %><br>
-      for <a href="<%= validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>"><%=h e[ :identifier ] %></a>
+      for <a href="<%= validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=junii2"><%=h e[ :identifier ] %></a>
   <% else %>
   <li><%=h e %>
   <% end %>

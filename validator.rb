@@ -93,6 +93,9 @@ if $0 == __FILE__
    ARGV.each do |url|
       validator = JuNii2Validator.new( url )
       result = validator.validate
-      pp result
+      result.keys.each do |k|
+         puts "Total #{ result[ k ].size } #{ k }:"
+         pp result[ k ]
+      end
    end
 end

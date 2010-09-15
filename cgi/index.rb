@@ -3,6 +3,8 @@
 
 require "cgi"
 require "erb"
+
+$:.push( File.join( File.dirname( $0 ), ".." ) )
 require "validator.rb"
 
 begin
@@ -11,13 +13,15 @@ begin
    data = nil
    if not url.nil? and not url.empty? and not url == "http://"
       validator = JuNii2Validator.new( url )
+      STDERR.puts url
       data = validator.validate
    end
+
+   print @cgi.header( "text/html" )
 
    include ERB::Util
    fname = "validator.rhtml"
    rhtml = open( fname ){|io| io.read }
-   print @cgi.header( "text/html" )
    print ERB::new( rhtml, $SAFE, "<>" ).result( binding )
 rescue Exception
    if @cgi then

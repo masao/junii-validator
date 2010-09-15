@@ -97,14 +97,17 @@ class JuNii2Validator
             # metadata = e.find("./metadata")[0]
             # next if metadata.nil?
             # STDERR.puts metadata.first.class
-            metadata = e.child
-            doc = LibXML::XML::Document.string( metadata.to_s )
+            metadata = e.inner_xml.strip
+            # puts metadata
+            doc = LibXML::XML::Document.string( metadata )
             begin
                doc.validate_schema( @xml_schema )
             rescue LibXML::XML::Error => err
                # err.message
                error_help =
                   case err.message
+                  when /No matching global declaration available for the validation root/
+                     :wrong_root_element
                   when /This element is not expected. Expected is one of \( .* \)/
                      :sequence
                   when /is not a valid value of the atomic type \'\{.*\}numberType\'/

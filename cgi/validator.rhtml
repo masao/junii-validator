@@ -33,7 +33,12 @@ OAI-PMHサーバが、JuNii2メタデータに則ったXML形式を出力して�
 <h2><%=h k.to_s.capitalize %> : <%=h data[ k ].size %></h2>
 <ol>
 <% data[ k ].each do |e| %>
+  <% if e.kind_of?( Hash ) %>
+  <li><%=h e[ :message ] %><br>
+      for <a href="<%= validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>"><%=h e[ :identifier ] %></a>
+  <% else %>
   <li><%=h e %>
+  <% end %>
 <% end %>
 </ol>
 </div>

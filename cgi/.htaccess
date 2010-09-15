@@ -1,1 +1,2 @@
 AddHandler cgi-script .rb
+DirectoryIndex index.rb

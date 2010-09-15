@@ -11,13 +11,11 @@ require "libxml"
 
 class JuNii2Validator
    JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2.xsd"
+   JUNII2_NAMESPACE = "http://irdb.nii.ac.jp/oai"
    attr_reader :baseurl
    def initialize( url )
       @baseurl = URI.parse( url )
-      xsd_uri = URI.parse( JUNII2_XSD )
-      res, = http( xsd_uri ).get( xsd_uri.request_uri )
-      parser = LibXML::XML::Parser.string( res.body )
-      @xml_schema = LibXML::XML::Schema.document( parser.parse )
+      @xml_schema = LibXML::XML::Schema.new( JUNII2_XSD )
    end
 
    def validate
@@ -44,6 +42,7 @@ class JuNii2Validator
          end
 
          # ListMetadataFormats
+         junii2_ns = nil
          res, = con.get( "#{ @baseurl.path }?verb=ListMetadataFormats" )
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
@@ -53,9 +52,31 @@ class JuNii2Validator
          if element.empty?
             result[ :error ] << "Zero metadataFormat supported."
          else
-            supported_formats = element.map do |e|
-               e.find( "./oai:metadataPrefix",
-                       "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+            supported_formats = []
+            element.each do |e|
+               prefix = e.find( "./oai:metadataPrefix",
+                                "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+               supported_formats << prefix
+               if prefix == "junii2"
+                  junii2_ns = e.find( "./oai:metadataNamespace",
+                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+                  if not junii2_ns == JUNII2_NAMESPACE
+                     result[ :error ] << {
+                        :message => "This JuNii2 namespace ('#{ junii2_ns }') is different with the latest one: #{ JUNII2_NAMESPACE }",
+                        :help_error => :junii2_namespace,
+                     }
+                     # Fallback to old namespace.
+                     xsd_uri = URI.parse( JUNII2_XSD )
+                     res, = http( xsd_uri ).get( xsd_uri.request_uri )
+                     xml = res.body.gsub( /#{ Regexp.escape( JUNII2_NAMESPACE ) }/sm ){|m| junii2_ns }
+                     parser = LibXML::XML::Parser.string( xml )
+                     #parser = LibXML::XML::Parser.file( "junii2.xsd" )
+                     doc = parser.parse
+                     #doc.root.attributes[ 'targetNamespace' ] = junii2_ns
+                     #doc.root.attributes[ 'xmlns' ] = junii2_ns
+                     @xml_schema = LibXML::XML::Schema.document( doc )
+                  end
+               end
             end
             result[ :info ] << "Supported metadataFormat: " + supported_formats.join( ", " )
             if not supported_formats.include?( "junii2" )
@@ -70,6 +91,7 @@ class JuNii2Validator
          doc = parser.parse
          element = doc.find( "//oai:metadata",
                              "oai:http://www.openarchives.org/OAI/2.0/" )
+         result[ :info ] << "The size of ListRecords: #{ element.size }"
          result[ :warn ] << "ListRecords returned zero records." if element.empty?
          element.each do |e|
             # metadata = e.find("./metadata")[0]
@@ -81,8 +103,20 @@ class JuNii2Validator
                doc.validate_schema( @xml_schema )
             rescue LibXML::XML::Error => err
                # err.message
+               error_help =
+                  case err.message
+                  when /This element is not expected. Expected is one of \( .* \)/
+                     :sequence
+                  when /is not a valid value of the atomic type \'\{.*\}numberType\'/
+                     :numberType
+                  when /is not a valid value of the atomic type \'xs:anyURI\'/
+                     :anyURL
+                  else
+                     nil
+                  end
                result[ :error ] << {
                   :message => "XML Schema error: #{ err.message }",
+                  :error_help => error_help,
                   :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                 "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
                }

@@ -25,7 +25,16 @@ OAI-PMHサーバが、JuNii2メタデータに則ったXML形式を出力して�
 上記の入力欄に OAI-PMH サーバの「ベースURL」（baseURL）を入力してください。
 </p>
 </div>
-<% if data %>
+<% if not data %>
+<p>例:</p>
+<ul>
+  <li><a href="?url=http://repository.kulib.kyoto-u.ac.jp/dspace-oai/request">京都大学 紅</a>
+  <li><a href="?url=http://eprints.lib.hokudai.ac.jp/dspace-oai/request">北海道大学 HUSCAP</a>
+</ul>
+<ul>
+  <li><a href="http://www.opendoar.org/find.php?cID=108">OpenDOAR: Country (Japan)</a>
+</ul>
+<% else %>
 <div id="message">
 <% if data[ :error ].empty? and data[ :warn ].empty? %>
 <p id="success">

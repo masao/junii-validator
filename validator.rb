@@ -10,10 +10,17 @@ require "rubygems"
 require "libxml"
 
 class JuNii2Validator
+   JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2.xsd"
    attr_reader :baseurl
    def initialize( url )
       @baseurl = URI.parse( url )
+
+      xsd_uri = URI.parse( JUNII2_XSD )
+      res, = Net::HTTP.new( xsd_uri.host, xsd_uri.port ).get( xsd_uri.path )
+      parser = LibXML::XML::Parser.string( res.body )
+      @xml_schema = LibXML::XML::Schema.document( parser.parse )
    end
+
    def validate
       result = {
          :warn => [],
@@ -67,7 +74,15 @@ class JuNii2Validator
                              "oai:http://www.openarchives.org/OAI/2.0/" )
          result[ :warn ] << "ListRecords returned zero records." if element.empty?
          element.each do |e|
-            
+            metadata = e.child
+            doc = LibXML::XML::Document.string( metadata.to_s )
+            begin
+               doc.validate_schema( @xml_schema )
+            rescue LibXML::XML::Error => err
+               # err.message
+               result[ :error ] << "XML Schema error: #{ err.message }}" +
+                  "\n\tfor http://hdl.handle.net/2115/328"
+            end
          end
       end
       result

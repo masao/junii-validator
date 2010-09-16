@@ -50,7 +50,10 @@ class JuNii2Validator
          element = doc.find( "//oai:metadataFormat",
                              "oai:http://www.openarchives.org/OAI/2.0/" )
          if element.empty?
-            result[ :error ] << "Zero metadataFormat supported."
+            result[ :error ] << {
+               :message => "No metadataFormat supported.",
+               :error_id => :no_metadataFormat,
+            }
          else
             supported_formats = []
             element.each do |e|
@@ -63,7 +66,7 @@ class JuNii2Validator
                   if junii2_ns.nil? or junii2_ns.empty?
                      result[ :error ] << {
                         :message => "junii2 metadataPrefix does not have metadataNamespace.",
-                        :help_error => :no_metadataNamespace,
+                        :error_id => :no_metadataNamespace,
                         :link => :ListMetadataFormats,
                      }
                      junii2_ns = JUNII2_NAMESPACE
@@ -73,7 +76,7 @@ class JuNii2Validator
                   if not junii2_ns == JUNII2_NAMESPACE
                      result[ :error ] << {
                         :message => "This JuNii2 namespace ('#{ junii2_ns }') is different with the latest one ('#{ JUNII2_NAMESPACE }').",
-                        :help_error => :junii2_namespace,
+                        :error_id => :junii2_namespace,
                      }
                      # Fallback to old namespace.
                      xsd_uri = URI.parse( JUNII2_XSD )
@@ -90,7 +93,10 @@ class JuNii2Validator
             end
             result[ :info ] << "Supported metadataFormat: " + supported_formats.join( ", " )
             if not supported_formats.include?( "junii2" )
-               result[ :error ] << "junii2 metadata format is not supported."
+               result[ :error ] << {
+                  :message => "junii2 metadata format is not supported.",
+                  :error_id => :junii2_unsupported,
+               }
             end
          end
 
@@ -114,7 +120,7 @@ class JuNii2Validator
                doc.validate_schema( @xml_schema )
             rescue LibXML::XML::Error => err
                # err.message
-               error_help =
+               error_id =
                   case err.message
                   when /No matching global declaration available for the validation root/
                      :wrong_root_element
@@ -129,7 +135,7 @@ class JuNii2Validator
                   end
                result[ :error ] << {
                   :message => "XML Schema error: #{ err.message }",
-                  :error_help => error_help,
+                  :error_id => error_id,
                   :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                 "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
                }

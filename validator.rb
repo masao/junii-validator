@@ -77,6 +77,7 @@ class JuNii2Validator
                      result[ :error ] << {
                         :message => "This JuNii2 namespace ('#{ junii2_ns }') is different with the latest one ('#{ JUNII2_NAMESPACE }').",
                         :error_id => :junii2_namespace,
+			:link => :ListMetadataFormats,
                      }
                      # Fallback to old namespace.
                      xsd_uri = URI.parse( JUNII2_XSD )

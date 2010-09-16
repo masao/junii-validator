@@ -21,9 +21,15 @@ p {
 }
 
 .form {
-  text-align: center;
+  /*text-align: center;*/
+  width: 60%;
+  margin: auto;
+  font-size: 2;
 }
 input { padding: 2px; }
+#form_option {
+  font-size: smaller;
+}
 
 .help-text {
   width: 70%;

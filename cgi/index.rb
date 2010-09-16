@@ -14,11 +14,18 @@ begin
       ENV[ 'http_proxy' ] = 'http://wwwout.nims.go.jp:8888'
    end
    url = @cgi.params[ "url" ][0]
+   options = {}
+   [ :from, :until, :set ].each do |k|
+      p  @cgi.params[ k.to_s ]
+      next if @cgi.params[ k.to_s ].empty?
+      options[ k ] = @cgi.params[ k.to_s ][0]
+   end
+   p options
    data = nil
    if not url.nil? and not url.empty? and not url == "http://"
       validator = JuNii2Validator.new( url )
       STDERR.puts url
-      data = validator.validate
+      data = validator.validate( options )
    end
 
    print @cgi.header( "text/html" )
@@ -29,8 +36,7 @@ begin
    print ERB::new( rhtml, $SAFE, "<>" ).result( binding )
 rescue Exception
    if @cgi then
-      print @cgi.header( 'status' => CGI::HTTP_STATUS['SERVER_ERROR'], 'type' => 'text/
-html' )
+      print @cgi.header( 'status' => CGI::HTTP_STATUS['SERVER_ERROR'], 'type' => 'text/html' )
    else
       print "Status: 500 Internal Server Error\n"
       print "Content-Type: text/html\n\n"

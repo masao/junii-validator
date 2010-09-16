@@ -18,7 +18,7 @@ class JuNii2Validator
       @xml_schema = LibXML::XML::Schema.new( JUNII2_XSD )
    end
 
-   def validate
+   def validate( options = {} )
       result = {
          :warn => [],
          :error=> [],
@@ -102,7 +102,15 @@ class JuNii2Validator
          end
 
          # ListRecords
-         res, = con.get( "#{ @baseurl.path }?verb=ListRecords&metadataPrefix=junii2" )
+         params = ""
+         options.each do |k, v|
+            case k
+            when :from, :until, :set
+               params << "#{ k }=#{ URI.escape( v ) }"
+            end
+         end
+         params = "&#{ params }"
+         res, = con.get( "#{ @baseurl.path }?verb=ListRecords&metadataPrefix=junii2#{ params }" )
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
          doc = parser.parse

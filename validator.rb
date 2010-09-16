@@ -59,10 +59,20 @@ class JuNii2Validator
                supported_formats << prefix
                if prefix == "junii2"
                   junii2_ns = e.find( "./oai:metadataNamespace",
-                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+                                      "oai:http://www.openarchives.org/OAI/2.0/" )
+                  if junii2_ns.nil? or junii2_ns.empty?
+                     result[ :error ] << {
+                        :message => "junii2 metadataPrefix does not have metadataNamespace.",
+                        :help_error => :no_metadataNamespace,
+                        :link => :ListMetadataFormats,
+                     }
+                     junii2_ns = JUNII2_NAMESPACE
+                  else
+                     junii2_ns = junii2_ns[0].content
+                  end
                   if not junii2_ns == JUNII2_NAMESPACE
                      result[ :error ] << {
-                        :message => "This JuNii2 namespace ('#{ junii2_ns }') is different with the latest one: #{ JUNII2_NAMESPACE }",
+                        :message => "This JuNii2 namespace ('#{ junii2_ns }') is different with the latest one ('#{ JUNII2_NAMESPACE }').",
                         :help_error => :junii2_namespace,
                      }
                      # Fallback to old namespace.

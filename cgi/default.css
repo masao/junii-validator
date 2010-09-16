@@ -36,6 +36,9 @@ input { padding: 2px; }
   margin-left: auto;
   margin-right: auto;
 }
+.recent {
+  font-size: smaller;
+}
 
 #error {
   background-color: pink;

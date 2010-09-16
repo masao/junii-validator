@@ -16,7 +16,7 @@ begin
    url = @cgi.params[ "url" ][0]
    options = {}
    [ :from, :until, :set ].each do |k|
-      next if @cgi.params[ k.to_s ].empty? or @cgi.params[ k.to_s ][0].empty?
+      next if @cgi.params[ k.to_s ].empty? or @cgi.params[ k.to_s ][0].strip.empty?
       options[ k ] = @cgi.params[ k.to_s ][0]
    end
    data = nil

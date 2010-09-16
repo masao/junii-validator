@@ -9,6 +9,10 @@ require "validator.rb"
 
 begin
    @cgi = CGI.new
+   case @cgi.host
+   when "kagaku.nims.go.jp"
+      ENV[ 'http_proxy' ] = 'http://wwwout.nims.go.jp:8888'
+   end
    url = @cgi.params[ "url" ][0]
    data = nil
    if not url.nil? and not url.empty? and not url == "http://"

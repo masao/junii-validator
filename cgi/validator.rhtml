@@ -8,7 +8,11 @@
 <link rel="stylesheet" href="default.css" type="text/css" />
 <title>JuNii2 Validator</title>
 </head>
-<body>
+<body
+<% if data %>
+onload="document.getElementById('form_option').style.display='block';document.getElementById('toggle_option').style.display='none'"
+<% end %>
+>
 <!-- hhmts start -->
 <div class="last-update">最終更新日: 2010年09月16日</div>
 <!-- hhmts end -->

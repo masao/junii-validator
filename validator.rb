@@ -117,7 +117,13 @@ class JuNii2Validator
          element = doc.find( "//oai:metadata",
                              "oai:http://www.openarchives.org/OAI/2.0/" )
          result[ :info ] << "The size of ListRecords: #{ element.size }"
-         result[ :warn ] << "ListRecords returned zero records." if element.empty?
+	 if element.empty?
+            result[ :warn ] << {
+	       :message => "ListRecords returned zero records.",
+	       :link => :ListRecords,
+	       :error_id => :zero_listrecords,
+	    }
+	 end
          element.each do |e|
             # metadata = e.find("./metadata")[0]
             # next if metadata.nil?

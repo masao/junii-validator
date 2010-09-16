@@ -119,6 +119,7 @@ class JuNii2Validator
                result[ :error ] << {
                   :message => "junii2 namespace is not specified.",
                   :error_id => :no_junii2_namespace,
+		  :link => :ListRecords,
                }
                junii2_ns = LibXML::XML::Namespace.new( doc.root, nil, JUNII2_NAMESPACE )
                doc.root.namespaces.namespace =junii2_ns

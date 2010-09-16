@@ -134,6 +134,8 @@ class JuNii2Validator
                      :wrong_root_element
                   when /This element is not expected. Expected is one of \( .* \)/
                      :sequence
+                  when /is not a valid value of the atomic type \'\{.*\}issnType\'/
+                     :issnType
                   when /is not a valid value of the atomic type \'\{.*\}numberType\'/
                      :numberType
                   when /is not a valid value of the atomic type \'xs:anyURI\'/

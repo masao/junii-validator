@@ -22,11 +22,11 @@
 </div>
 <div id="form_option" style="display:none">
 <label for="from">From (yyyy-mm-dd):</label>
-<input type="text" name="from" value="" size="20"/>
+<input type="text" name="from" value="<%=h options[:from] %>" size="20"/>
 <label for="from">Until (yyyy-mm-dd):</label>
-<input type="text" name="until" value="" size="20"/><br>
+<input type="text" name="until" value="<%=h options[:until] %>" size="20"/><br>
 <label for="set">Set:</label>
-<input type="text" name="set" value=""/>
+<input type="text" name="set" value="<%=h options[:set] %>"/>
 </div>
 </form>
 </div>
@@ -68,7 +68,7 @@ OAI-PMHの設定に問題は見つかりませんでした。
       <% if e[ :link ] == :ListMetadataFormats %>
       <br>at <a href="<%= validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
       <% elsif e[ :link ] == :ListRecords %>
-      <br>at <a href="<%= validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=junii2">ListRecords</a>
+      <br>at <a href="<%= validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=junii2<%= "&" + options.map{|k,v| "#{k}=#{v}" }.join("&") if not options.empty? %>">ListRecords</a>
       <% elsif e[ :identifier ] %>
       <br>for <a href="<%= validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=junii2"><%=h e[ :identifier ] %></a>
       <% end %>

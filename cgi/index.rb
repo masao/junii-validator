@@ -13,6 +13,7 @@ begin
    when "kagaku.nims.go.jp"
       ENV[ 'http_proxy' ] = 'http://wwwout.nims.go.jp:8888'
    end
+   HELP_URL = "http://drf.lib.hokudai.ac.jp/drf/index.php?tech%2Fnote%2Fgeneral%2FOAI-PMH%20validator"
    url = @cgi.params[ "url" ][0]
    options = {}
    [ :from, :until, :set ].each do |k|

@@ -38,6 +38,7 @@ onload="document.getElementById('form_option').style.display='block';document.ge
 <p>
 OAI-PMHサーバが、<a href="http://www.nii.ac.jp/irp/archive/system/junii2.html">JuNii2メタデータ</a>に則ったXML形式を出力しているかを、XML Schemaにもとづいた、データの妥当性検証により確認します。
 上記の入力欄に OAI-PMH サーバの「ベースURL」（baseURL）を入力してください。
+<a href="<%= HELP_URL %>">→ 詳細・ヘルプ</a>
 </p>
 </div>
 <% if not data %>
@@ -72,7 +73,7 @@ OAI-PMHの設定に問題は見つかりませんでした。
   <% if e.kind_of?( Hash ) %>
   <li><%=h e[ :message ] %>
       <% if e[ :error_id ] %>
-      <a href="http://drf.lib.hokudai.ac.jp/drf-techswg/index.php?DRF%2F%E3%81%BF%E3%82%93%E3%81%AA%E3%81%AE%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E4%BD%9C%E6%A5%AD%E8%A8%98%E9%8C%B2%2FOAI-PMH%20validator#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
+      <a href="<%= HELP_URL %>#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
       <% if e[ :link ] == :ListMetadataFormats %>
       <br>at <a href="<%= validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
       <% elsif e[ :link ] == :ListRecords %>

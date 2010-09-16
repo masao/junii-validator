@@ -16,11 +16,9 @@ begin
    url = @cgi.params[ "url" ][0]
    options = {}
    [ :from, :until, :set ].each do |k|
-      p  @cgi.params[ k.to_s ]
       next if @cgi.params[ k.to_s ].empty?
       options[ k ] = @cgi.params[ k.to_s ][0]
    end
-   p options
    data = nil
    if not url.nil? and not url.empty? and not url == "http://"
       validator = JuNii2Validator.new( url )

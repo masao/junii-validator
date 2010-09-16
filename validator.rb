@@ -114,8 +114,12 @@ class JuNii2Validator
             # next if metadata.nil?
             # STDERR.puts metadata.first.class
             metadata = e.inner_xml.strip
-            # puts metadata
             doc = LibXML::XML::Document.string( metadata )
+            if doc.root.namespaces.namespace.nil?
+               junii2_ns = LibXML::XML::Namespace.new( doc.root, nil, JUNII2_NAMESPACE )
+               doc.root.namespaces.namespace =junii2_ns
+               doc = LibXML::XML::Document.string( doc.to_s )
+            end
             begin
                doc.validate_schema( @xml_schema )
             rescue LibXML::XML::Error => err

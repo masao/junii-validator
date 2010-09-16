@@ -116,6 +116,10 @@ class JuNii2Validator
             metadata = e.inner_xml.strip
             doc = LibXML::XML::Document.string( metadata )
             if doc.root.namespaces.namespace.nil?
+               result[ :error ] << {
+                  :message => "junii2 namespace is not specified.",
+                  :error_id => :no_junii2_namespace,
+               }
                junii2_ns = LibXML::XML::Namespace.new( doc.root, nil, JUNII2_NAMESPACE )
                doc.root.namespaces.namespace =junii2_ns
                doc = LibXML::XML::Document.string( doc.to_s )

@@ -47,6 +47,9 @@ input { padding: 2px; }
   background-color: #ff5;
 }
 #success {
-  background-color: green;
+  background-color: #5f5;
   font-size: larger;
+  font-weight: bold;
+  padding: 10px;
+  border: 1px solid gray;
 }

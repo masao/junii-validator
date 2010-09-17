@@ -16,7 +16,7 @@ begin
    HELP_URL = "http://drf.lib.hokudai.ac.jp/drf/index.php?tech%2Fnote%2Fgeneral%2FOAI-PMH%20validator"
    url = @cgi.params[ "url" ][0]
    options = {}
-   [ :from, :until, :set ].each do |k|
+   [ :from, :until, :set, :resumptionToken ].each do |k|
       next if @cgi.params[ k.to_s ].empty? or @cgi.params[ k.to_s ][0].strip.empty?
       options[ k ] = @cgi.params[ k.to_s ][0]
    end

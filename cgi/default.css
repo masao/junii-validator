@@ -46,3 +46,7 @@ input { padding: 2px; }
 #warn {
   background-color: #ff5;
 }
+#success {
+  background-color: green;
+  font-size: larger;
+}

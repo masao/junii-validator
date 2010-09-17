@@ -114,6 +114,12 @@ class JuNii2Validator
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
          doc = parser.parse
+         resumption_token = doc.find( "//oai:resumptionToken",
+                                      "oai:http://www.openarchives.org/OAI/2.0/" )
+         if not resumption_token.nil? and not resumption_token.empty?
+            result[ :next_token ] = resumption_token.first.content
+            STDERR.puts resumption_token.first
+         end
          element = doc.find( "//oai:metadata",
                              "oai:http://www.openarchives.org/OAI/2.0/" )
          result[ :info ] << "The size of ListRecords: #{ element.size }"

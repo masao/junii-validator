@@ -6,19 +6,21 @@ require 'test/unit'
 require "validator.rb"
 
 class TestJuNII2Validator < Test::Unit::TestCase
+   TEST_SITE = [
+                "http://eprints.lib.hokudai.ac.jp/dspace-oai/request",
+                "http://repository.kulib.kyoto-u.ac.jp/dspace-oai/request",
+                "http://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php",
+                "http://petit.lib.yamaguchi-u.ac.jp/infolib/oai_repository/repository",
+               ]
    def test_validator
-      [
-       "http://eprints.lib.hokudai.ac.jp/dspace-oai/request",
-       "http://repository.kulib.kyoto-u.ac.jp/dspace-oai/request",
-       "http://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php",
-       "http://petit.lib.yamaguchi-u.ac.jp/infolib/oai_repository/repository",
-      ].each do |url|
+      TEST_SITE.each do |url|
          validator = JuNii2Validator.new( url )
          result = validator.validate
          result[ :error ].each do |e|
             assert( e.kind_of?( Hash ) )
             assert( e[ :error_id ] )
          end
+         assert( result[ :next_token ] )
       end
    end
 

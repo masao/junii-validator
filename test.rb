@@ -25,7 +25,7 @@ class TestJuNII2Validator < Test::Unit::TestCase
    end
 
    def test_validator_from
-      validator = JuNii2Validator.new( "http://eprints.lib.hokudai.ac.jp/dspace-oai/request" )
+      validator = JuNii2Validator.new( TEST_SITE.first )
       result = validator.validate( :from => ( Date.today - 30 ).to_s )
       result[ :error ].each do |e|
          assert( e.kind_of?( Hash ) )

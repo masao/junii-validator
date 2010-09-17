@@ -118,7 +118,6 @@ class JuNii2Validator
                                       "oai:http://www.openarchives.org/OAI/2.0/" )
          if not resumption_token.nil? and not resumption_token.empty?
             result[ :next_token ] = resumption_token.first.content
-            STDERR.puts resumption_token.first
          end
          element = doc.find( "//oai:metadata",
                              "oai:http://www.openarchives.org/OAI/2.0/" )
@@ -162,7 +161,7 @@ class JuNii2Validator
                      :issnType
                   when /is not a valid value of the atomic type \'\{.*\}numberType\'/
                      :numberType
-                  when /is not a valid value of the union type \'\{.*\}language\'/
+                  when /is not a valid value of the union type \'\{.*\}languageType\'/
                      :languageType
                   when /is not a valid value of the atomic type \'xs:anyURI\'/
                      :anyURL
@@ -200,9 +199,12 @@ if $0 == __FILE__
    ARGV.each do |url|
       validator = JuNii2Validator.new( url )
       result = validator.validate
-      result.keys.each do |k|
+      [ :info, :error, :warn ].each do |k|
          puts "Total #{ result[ k ].size } #{ k }:"
          pp result[ k ]
+      end
+      if result[ :next_token ]
+         puts "resumptionToken: #{ result[ :next_token ].inspect }"
       end
    end
 end

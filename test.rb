@@ -11,6 +11,7 @@ class TestJuNII2Validator < Test::Unit::TestCase
        "http://eprints.lib.hokudai.ac.jp/dspace-oai/request",
        "http://repository.kulib.kyoto-u.ac.jp/dspace-oai/request",
        "http://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php",
+       "http://petit.lib.yamaguchi-u.ac.jp/infolib/oai_repository/repository",
       ].each do |url|
          validator = JuNii2Validator.new( url )
          result = validator.validate

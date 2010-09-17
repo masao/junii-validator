@@ -159,6 +159,8 @@ class JuNii2Validator
                      :issnType
                   when /is not a valid value of the atomic type \'\{.*\}numberType\'/
                      :numberType
+                  when /is not a valid value of the atomic type \'\{.*\}language\'/
+                     :languageType
                   when /is not a valid value of the atomic type \'xs:anyURI\'/
                      :anyURL
                   else

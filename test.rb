@@ -13,11 +13,9 @@ class TestJuNII2Validator < Test::Unit::TestCase
        "http://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php",
       ].each do |url|
          validator = JuNii2Validator.new( url )
-         STDERR.puts
          result = validator.validate
          result[ :error ].each do |e|
             assert( e.kind_of?( Hash ) )
-            p e
             assert( e[ :error_id ] )
          end
       end
@@ -28,7 +26,16 @@ class TestJuNII2Validator < Test::Unit::TestCase
       result = validator.validate( :from => ( Date.today - 30 ).to_s )
       result[ :error ].each do |e|
          assert( e.kind_of?( Hash ) )
-         p e
       end
+      assert( result[ :info ].grep( /\AThe size of ListRecords: (\d+)\Z/ ) )
+      assert( $1.to_i > 0 )
+
+      result = validator.validate( :from => ( Date.today - 30 ).to_s,
+      				   :until =>( Date.today ).to_s )
+      result[ :error ].each do |e|
+         assert( e.kind_of?( Hash ) )
+      end
+      assert( result[ :info ].grep( /\AThe size of ListRecords: (\d+)\Z/ ) )
+      assert( $1.to_i > 0 )
    end
 end

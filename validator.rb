@@ -25,6 +25,7 @@ class JuNii2Validator
          :info => [],
       }
       http( @baseurl ).start do |con|
+         STDERR.puts @baseurl
          # Identify
          res, = con.get( "#{ @baseurl.path }?verb=Identify" )
          xml = res.body
@@ -106,10 +107,10 @@ class JuNii2Validator
          options.each do |k, v|
             case k
             when :from, :until, :set
-               params << "#{ k }=#{ URI.escape( v ) }"
+               params << "&#{ k }=#{ URI.escape( v ) }"
             end
          end
-         params = "&#{ params }"
+	 STDERR.puts params
          res, = con.get( "#{ @baseurl.path }?verb=ListRecords&metadataPrefix=junii2#{ params }" )
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )

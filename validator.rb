@@ -103,14 +103,17 @@ class JuNii2Validator
          end
 
          # ListRecords
-         params = ""
+         params = "&metadataPrefix=junii2"
          options.each do |k, v|
             case k
             when :from, :until, :set
                params << "&#{ k }=#{ URI.escape( v ) }"
             end
          end
-         res, = con.get( "#{ @baseurl.path }?verb=ListRecords&metadataPrefix=junii2#{ params }" )
+	 if options[ :resumptionToken ]
+	    params = "&resumptionToken=#{ URI.escape( options[ :resumptionToken ] ) }"
+	 end
+         res, = con.get( "#{ @baseurl.path }?verb=ListRecords&#{ params }" )
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
          doc = parser.parse

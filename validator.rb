@@ -126,23 +126,27 @@ class JuNii2Validator
 	    }
 	 end
          element.each do |e|
-            # metadata = e.find("./metadata")[0]
-            # next if metadata.nil?
-            # STDERR.puts metadata.first.class
-            metadata = e.inner_xml.strip
-            doc = LibXML::XML::Document.string( metadata )
-            if doc.root.namespaces.namespace.nil?
+            metadata = LibXML::XML::Document.new
+            metadata.root = e.child.copy( true )
+            if metadata.root.nil? or e.child.empty?	# adhoc for XooNips.
+               metadata.root = e.child.next.copy( true )
+            end
+            # p metadata.root.to_s
+            # metadata = LibXML::XML::Document.string( metadata.root.to_s )
+            # metadata = e.inner_xml.strip
+            # doc = LibXML::XML::Document.string( metadata )
+            if metadata.root.namespaces.namespace.nil?
                result[ :error ] << {
                   :message => "junii2 namespace is not specified.",
                   :error_id => :no_junii2_namespace,
 		  :link => :ListRecords,
                }
-               junii2_ns = LibXML::XML::Namespace.new( doc.root, nil, JUNII2_NAMESPACE )
-               doc.root.namespaces.namespace =junii2_ns
-               doc = LibXML::XML::Document.string( doc.to_s )
+               junii2_ns = LibXML::XML::Namespace.new( metadata.root, nil, JUNII2_NAMESPACE )
+               metadata.root.namespaces.namespace =junii2_ns
+               metadata = LibXML::XML::Document.string( metadata.to_s )
             end
             begin
-               doc.validate_schema( @xml_schema )
+               metadata.validate_schema( @xml_schema )
             rescue LibXML::XML::Error => err
                # err.message
                error_id =

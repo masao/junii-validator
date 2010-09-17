@@ -93,7 +93,7 @@ OAI-PMHの設定に問題は見つかりませんでした。
 <% end %>
 <% if data and data[ :next_token ] %>
 <p class="next_token">
-<a href="?url=<%=h validator.baseurl %><%= "&" + options.map{|k,v| "#{k}=#{ CGI.escape v }" }.join("&") if not options.empty? %>&amp;resumptionToken=<%=h data[ :next_token ] %>">続きのレコードをチェックする</a>
+<a href="?url=<%=h validator.baseurl %>&amp;resumptionToken=<%=h data[ :next_token ] %>">続きのレコードをチェックする</a>
 </p>
 <% end %>
 <hr />

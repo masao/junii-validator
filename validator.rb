@@ -110,7 +110,6 @@ class JuNii2Validator
                params << "&#{ k }=#{ URI.escape( v ) }"
             end
          end
-	 STDERR.puts params
          res, = con.get( "#{ @baseurl.path }?verb=ListRecords&metadataPrefix=junii2#{ params }" )
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
@@ -126,15 +125,13 @@ class JuNii2Validator
 	    }
 	 end
          element.each do |e|
+            # metadata = e.inner_xml.strip
+            # metadata = LibXML::XML::Document.string( metadata )
             metadata = LibXML::XML::Document.new
             metadata.root = e.child.copy( true )
             if metadata.root.nil? or e.child.empty?	# adhoc for XooNips.
                metadata.root = e.child.next.copy( true )
             end
-            # p metadata.root.to_s
-            # metadata = LibXML::XML::Document.string( metadata.root.to_s )
-            # metadata = e.inner_xml.strip
-            # doc = LibXML::XML::Document.string( metadata )
             if metadata.root.namespaces.namespace.nil?
                result[ :error ] << {
                   :message => "junii2 namespace is not specified.",

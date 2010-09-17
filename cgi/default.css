@@ -39,6 +39,15 @@ input { padding: 2px; }
 .recent {
   font-size: smaller;
 }
+.next_token {
+  font-size: 14px;
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid #ddd #aaa #aaa #ddd;
+  height: 22px;
+  line-height: 1.5em;
+  padding: 6px 0;
+}
 
 #error {
   background-color: pink;

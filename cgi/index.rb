@@ -23,7 +23,6 @@ begin
    data = nil
    if not url.nil? and not url.empty? and not url == "http://"
       validator = JuNii2Validator.new( url )
-      STDERR.puts url
       data = validator.validate( options )
    end
 

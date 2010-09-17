@@ -76,11 +76,11 @@ OAI-PMHの設定に問題は見つかりませんでした。
       <% if e[ :error_id ] %>
       <a href="<%= HELP_URL %>#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
       <% if e[ :link ] == :ListMetadataFormats %>
-      <br>at <a href="<%= validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
+      <br>at <a href="<%=h validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
       <% elsif e[ :link ] == :ListRecords %>
-      <br>at <a href="<%= validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=junii2<%= "&" + options.map{|k,v| "#{k}=#{v}" }.join("&") if not options.empty? %>">ListRecords</a>
+      <br>at <a href="<%=h validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=junii2<%= "&" + options.map{|k,v| "#{k}=#{ CGI.escape v }" }.join("&") if not options.empty? %>">ListRecords</a>
       <% elsif e[ :identifier ] %>
-      <br>for <a href="<%= validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=junii2"><%=h e[ :identifier ] %></a>
+      <br>for <a href="<%=h validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=junii2"><%=h e[ :identifier ] %></a>
       <% end %>
       <% end %>
   <% else %>
@@ -91,7 +91,11 @@ OAI-PMHの設定に問題は見つかりませんでした。
 </div>
 <% end %>
 <% end %>
+<% if data and data[ :next_token ] %>
+<p class="next_token">
+<a href="?url=<%=h validator.baseurl %><%= "&" + options.map{|k,v| "#{k}=#{ CGI.escape v }" }.join("&") if not options.empty? %>&amp;resumptionToken=<%=h data[ :next_token ] %>">続きのレコードをチェックする</a>
 </p>
+<% end %>
 <hr />
 <div id="footer">
 <address>高久雅生 (Masao Takaku)<br />

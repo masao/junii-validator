@@ -118,7 +118,7 @@ class JuNii2Validator
          if not res.code == "200"
             result[ :error ] << {
                :error_id => :not_success_http,
-               :error_message => "The server does not return success code: #{ res.code }",
+               :message => "The server does not return success code: #{ res.code }",
                :link => :ListRecords,
             }
             return result

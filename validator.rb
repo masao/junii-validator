@@ -177,7 +177,7 @@ class JuNii2Validator
                   case err.message
                   when /No matching global declaration available for the validation root/
                      :wrong_root_element
-                  when /This element is not expected. Expected is one of \( .* \)/
+                  when /This element is not expected. Expected is (one of )?\( .* \)/
                      :sequence
                   when /is not a valid value of the atomic type \'\{.*\}issnType\'/
                      :issnType

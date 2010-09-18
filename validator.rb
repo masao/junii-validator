@@ -209,6 +209,14 @@ class JuNii2Validator
                                                    "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
                   }
                end
+               if not creator.content =~ /, / and creator.content.size < 50
+                  result[ :warn ] << {
+                     :error_id => :no_comma_creator,
+                     :message => "Creator '#{ creator.content }' does not contain any separators between family and given name.",
+                     :identifier => e.parent.find( "./oai:header/oai:identifier",
+                                                   "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
+                  }
+               end
             end
          end
       end

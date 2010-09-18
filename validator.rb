@@ -220,7 +220,7 @@ class JuNii2Validator
             end
             # junii2 guideline version 1.0: subjectType
             %w[ NDC NDLC DDC LCC UDC ].each do |subject|
-               elem = metadata.find( "//junii2:NDC", "junii2:#{ junii2_ns }" )
+               elem = metadata.find( "//junii2:#{ subject }", "junii2:#{ junii2_ns }" )
                elem.each do |s|
                   if not s.content =~ /\A[\w\.]+\Z/
                      result[ :warn ] << {
@@ -232,7 +232,17 @@ class JuNii2Validator
                   end
                end
             end
-         end
+
+            # junii2 guideline version 1.0: format
+            elem = metadata.find( "//junii2:format", "junii2:#{ junii2_ns }" )
+            elem.each do |s|
+               if not s.content =~ /\A(application|audio|image|message|text|model|multipart|text|video|example)\/[\w\.\+\-]+\Z/
+                  result[ :warn ] << {
+                     :error_id => :formatType,
+                     :message => "Element 'format' ('#{ format }') must be internet media type.",
+                     :identifier => e.parent.find( "./oai:header/oai:identifier",
+                                                   "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
+           end
       end
       result
    end

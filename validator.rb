@@ -198,7 +198,7 @@ class JuNii2Validator
                }
             end
 
-            # junii2 guideline version 1: creator
+            # junii2 guideline version 1.0: creator
             creators = metadata.find( "//junii2:creator", "junii2:#{ junii2_ns }" )
             creators.each do |creator|
                if creators.size > 1 and creator.content =~ /\A[ア-ン　，,\s]+\Z/
@@ -216,6 +216,20 @@ class JuNii2Validator
                      :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                    "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
                   }
+               end
+            end
+            # junii2 guideline version 1.0: subjectType
+            %w[ NDC NDLC DDC LCC UDC ].each do |subject|
+               elem = metadata.find( "//junii2:NDC", "junii2:#{ junii2_ns }" )
+               elem.each do |s|
+                  if not s.content =~ /\A[\w\.]+\Z/
+                     result[ :warn ] << {
+                        :error_id => :subjectType,
+                        :message => "Element '#{ subject }' contains characters other than numerics: '#{ s.content }'",
+                        :identifier => e.parent.find( "./oai:header/oai:identifier",
+                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
+                     }
+                  end
                end
             end
          end

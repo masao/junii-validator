@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 # $Id$
 
 require "net/http"
@@ -114,9 +115,27 @@ class JuNii2Validator
 	    params = "&resumptionToken=#{ URI.escape( options[ :resumptionToken ] ) }"
 	 end
          res, = con.get( "#{ @baseurl.path }?verb=ListRecords&#{ params }" )
+         if not res.code == "200"
+            result[ :error ] << {
+               :error_id => :not_success_http,
+               :error_message => "The server does not return success code: #{ res.code }",
+               :link => :ListRecords,
+            }
+            return result
+         end
          xml = res.body
-         parser = LibXML::XML::Parser.string( xml )
-         doc = parser.parse
+         doc = nil
+         begin
+            parser = LibXML::XML::Parser.string( xml )
+            doc = parser.parse
+         rescue LibXML::XML::Error => err
+            result[ :error ] << {
+               :error_id => :parse_error,
+               :message => "ListRecords returned malformed XML data.",
+               :link => :ListRecords,
+            }
+            return result
+         end
          resumption_token = doc.find( "//oai:resumptionToken",
                                       "oai:http://www.openarchives.org/OAI/2.0/" )
          if not resumption_token.nil? and not resumption_token.empty?
@@ -177,6 +196,19 @@ class JuNii2Validator
                   :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                 "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
                }
+            end
+
+            # junii2 guideline version 1: creator
+            creators = metadata.find( "//junii2:creator", "junii2:#{ JUNII2_NAMESPACE }" )
+            creators.each do |creator|
+               if creators.size > 1 and creator.content =~ /\A[ア-ン　，,\s]+Z/
+                  result[ :warn ] << {
+                     :error_id => :katakana_creator,
+                     :message => "Creator '#{ creator.content }' contains only Katakana characters.",
+                     :identifier => e.parent.find( "./oai:header/oai:identifier",
+                                                   "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
+                  }
+               end
             end
          end
       end

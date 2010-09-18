@@ -201,7 +201,7 @@ class JuNii2Validator
             # junii2 guideline version 1: creator
             creators = metadata.find( "//junii2:creator", "junii2:#{ junii2_ns }" )
             creators.each do |creator|
-               if creators.size > 1 and creator.content =~ /\A[ア-ン　，,\s]+Z/
+               if creators.size > 1 and creator.content =~ /\A[ア-ン　，,\s]+\Z/
                   result[ :warn ] << {
                      :error_id => :katakana_creator,
                      :message => "Creator '#{ creator.content }' contains only Katakana characters.",

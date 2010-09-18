@@ -199,7 +199,7 @@ class JuNii2Validator
             end
 
             # junii2 guideline version 1: creator
-            creators = metadata.find( "//junii2:creator", "junii2:#{ JUNII2_NAMESPACE }" )
+            creators = metadata.find( "//junii2:creator", "junii2:#{ junii2_ns }" )
             creators.each do |creator|
                if creators.size > 1 and creator.content =~ /\A[ア-ン　，,\s]+Z/
                   result[ :warn ] << {

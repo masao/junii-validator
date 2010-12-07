@@ -242,7 +242,10 @@ class JuNii2Validator
                      :message => "Element 'format' ('#{ format }') must be internet media type.",
                      :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                    "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-           end
+		  }
+	       end
+            end
+         end
       end
       result
    end

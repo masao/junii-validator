@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # $Id$
 
+require "date"
 require "net/http"
 require "net/https"
 

@@ -11,6 +11,16 @@ require "pp"
 require "rubygems"
 require "libxml"
 
+class URI::HTTP
+   def merge_request_uri( query_s )
+      if self.query
+         request_uri + "&#{ query_s }"
+      else
+      	 path + "?#{ query_s }"
+      end
+   end
+end
+
 class JuNii2Validator
    JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2.xsd"
    JUNII2_NAMESPACE = "http://irdb.nii.ac.jp/oai"
@@ -195,7 +205,7 @@ class JuNii2Validator
       http( @baseurl ).start do |con|
          STDERR.puts @baseurl
          # Identify
-         res, = con.get( "#{ @baseurl.path }?verb=Identify" )
+         res, = con.get( @baseurl.merge_request_uri( "verb=Identify" ) )
 	 #res.value
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
@@ -213,7 +223,7 @@ class JuNii2Validator
 
          # ListMetadataFormats
          junii2_ns = nil
-         res, = con.get( "#{ @baseurl.path }?verb=ListMetadataFormats" )
+         res, = con.get( @baseurl.merge_request_uri( "verb=ListMetadataFormats" ) )
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
          doc = parser.parse
@@ -282,7 +292,7 @@ class JuNii2Validator
 	 if options[ :resumptionToken ]
 	    params = "&resumptionToken=#{ URI.escape( options[ :resumptionToken ] ) }"
 	 end
-         res, = con.get( "#{ @baseurl.path }?verb=ListRecords&#{ params }" )
+         res, = con.get( @baseurl.merge_request_uri( "verb=ListRecords&#{ params }" ) )
          if not res.code == "200"
             result[ :error ] << {
                :error_id => :not_success_http,

@@ -196,6 +196,7 @@ class JuNii2Validator
          STDERR.puts @baseurl
          # Identify
          res, = con.get( "#{ @baseurl.path }?verb=Identify" )
+	 #res.value
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
          doc = parser.parse
@@ -441,6 +442,8 @@ class JuNii2Validator
       end
       http = Net::HTTP.Proxy( proxy, proxy_port ).new( uri.host, uri.port )
       http.use_ssl = true if uri.scheme == "https"      
+      http.open_timeout = 30
+      http.read_timeout = 30
       http
    end
 end

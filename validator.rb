@@ -14,7 +14,7 @@ require "libxml"
 class JuNii2Validator
    JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2.xsd"
    JUNII2_NAMESPACE = "http://irdb.nii.ac.jp/oai"
-   NIISubject = %w[
+   NIIsubject = %w[
     全般
     人文科学
     哲学・倫理学

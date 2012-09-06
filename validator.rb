@@ -5,6 +5,7 @@
 require "date"
 require "net/http"
 require "net/https"
+require "optparse"
 
 require "pp"
 
@@ -122,18 +123,18 @@ class JuNii2Validator
    北海道
    東北
    青森 岩手 宮城 秋田 山形 福島
-   関東 
+   関東
    茨城 栃木 群馬 埼玉 千葉 東京 神奈川
-   北陸 
+   北陸
    新潟 富山 石川 福井
    中部
-   山梨 長野 岐阜 静岡 愛知 
+   山梨 長野 岐阜 静岡 愛知
    三重
-   近畿 
+   近畿
    滋賀 京都 大阪 兵庫 奈良 和歌山
-   中国 
+   中国
    鳥取 島根 岡山 広島 山口
-   四国 
+   四国
    徳島 香川 愛媛 高知
    九州
    福岡 佐賀 長崎 熊本 大分 宮崎 鹿児島
@@ -145,7 +146,7 @@ class JuNii2Validator
    南アジア
    中東地域
    朝鮮半島
-   環太平洋地域 
+   環太平洋地域
    中華人民共和国
    韓国
    タイ
@@ -179,12 +180,12 @@ class JuNii2Validator
    環太平洋地域
    北米
    アメリカ合衆国
-   環太平洋地域 
+   環太平洋地域
    ブラジル
    中南米
    メキシコ
    オセアニア
-   環太平洋地域 
+   環太平洋地域
    オーストラリア
    南極・北極
    海洋・宇宙
@@ -451,7 +452,7 @@ class JuNii2Validator
          proxy_port = proxy_uri.port
       end
       http = Net::HTTP.Proxy( proxy, proxy_port ).new( uri.host, uri.port )
-      http.use_ssl = true if uri.scheme == "https"      
+      http.use_ssl = true if uri.scheme == "https"
       http.open_timeout = 30
       http.read_timeout = 30
       http
@@ -459,9 +460,19 @@ class JuNii2Validator
 end
 
 if $0 == __FILE__
+   options = {
+      :max => 20
+   }
+   opt = OptionParser.new
+   opt.on( '-max VAL' ){|v|
+      options[ :max ] = v
+   }
+   opt.on( '-from VAL'  ){|v| options[ :from ] = v }
+   opt.on( '-until VAL' ){|v| options[ :until ] = v }
+   opt.parse!( ARGV )
    ARGV.each do |url|
       validator = JuNii2Validator.new( url )
-      result = validator.validate
+      result = validator.validate( options )
       [ :info, :error, :warn ].each do |k|
          puts "Total #{ result[ k ].size } #{ k }:"
          pp result[ k ]

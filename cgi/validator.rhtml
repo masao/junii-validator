@@ -27,7 +27,7 @@ onload="document.getElementById('form_option').style.display='block';document.ge
 <div id="form_option" style="display:none">
 <label for="from">From (yyyy-mm-dd):</label>
 <input type="text" name="from" value="<%=h options[:from] %>" size="20"/>
-<label for="from">Until (yyyy-mm-dd):</label>
+<label for="until">Until (yyyy-mm-dd):</label>
 <input type="text" name="until" value="<%=h options[:until] %>" size="20"/><br>
 <label for="set">Set:</label>
 <input type="text" name="set" value="<%=h options[:set] %>"/>
@@ -55,6 +55,7 @@ OAI-PMHサーバが、<a href="http://www.nii.ac.jp/irp/archive/system/junii2.ht
 <% end %>
 </ul>
 <ul>
+  <li><a href="http://drf.lib.hokudai.ac.jp/drf/index.php?%E5%8F%82%E5%8A%A0%E6%A9%9F%E9%96%A2%E4%B8%80%E8%A6%A7">DRF 参加機関一覧</a>
   <li><a href="http://www.opendoar.org/find.php?cID=108">OpenDOAR: Country (Japan)</a>
 </ul>
 <% else %>

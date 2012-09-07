@@ -464,11 +464,9 @@ if $0 == __FILE__
       :max => 20
    }
    opt = OptionParser.new
-   opt.on( '-max VAL' ){|v|
-      options[ :max ] = v
-   }
-   opt.on( '-from VAL'  ){|v| options[ :from ] = v }
-   opt.on( '-until VAL' ){|v| options[ :until ] = v }
+   opt.on( '--max VAL'   ){|v| options[ :max ] = v }
+   opt.on( '--from VAL'  ){|v| options[ :from ] = v }
+   opt.on( '--until VAL' ){|v| options[ :until ] = v }
    opt.parse!( ARGV )
    ARGV.each do |url|
       validator = JuNii2Validator.new( url )

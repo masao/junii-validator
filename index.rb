@@ -5,7 +5,6 @@ require "cgi"
 require "erb"
 require "date"
 
-$:.push( File.join( File.dirname( $0 ), ".." ) )
 require "validator.rb"
 
 begin

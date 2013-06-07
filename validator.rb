@@ -24,7 +24,7 @@ end
 
 class JuNii2Validator
    #JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2.xsd"
-   JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2-3-0.xsd"
+   JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2-3_0.xsd"
    JUNII2_NAMESPACE = "http://irdb.nii.ac.jp/oai"
    NIIsubject = %w[
     全般

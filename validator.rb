@@ -429,6 +429,7 @@ class JuNii2Validator
             # junii2 guideline version 1.0: format
             elem = metadata.find( "//junii2:format", "junii2:#{ junii2_ns }" )
             elem.each do |s|
+               format = s.content
                if not s.content =~ /\A(application|audio|image|message|text|model|multipart|text|video|example)\/[\w\.\+\-]+\Z/
                   result[ :warn ] << {
                      :error_id => :formatType,
@@ -437,6 +438,21 @@ class JuNii2Validator
                                                    "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
 		  }
 	       end
+            end
+
+            # junii2 guideline version 3.0: grantid
+            elem = metadata.find( "//junii2:grantid", "junii2:#{ junii2_ns }" )
+            if not elem.empty?
+               niitype_e = metadata.find( "//junii2:NIItype", "junii2:#{ junii2_ns }" )
+               niitype = niitype_e.content
+               if niitype != "Thesis or Dissertation"
+                  result[ :error ] << {
+                     :error_id => niitypeThesis,
+                     :message => "Element 'NIItype' ('#{ niitype }') should be 'Thesis or Dissertation' when ETD is deposited.",
+                     :identifier => e.parent.find( "./oai:header/oai:identifier",
+                                             "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
+                  }
+               end
             end
          end
       end

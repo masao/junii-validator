@@ -433,7 +433,7 @@ class JuNii2Validator
             elem = metadata.find( "//junii2:format", "junii2:#{ junii2_ns }" )
             elem.each do |s|
                format = s.content
-               if not s.content =~ /\A(application|audio|image|message|text|model|multipart|text|video|example)\/[\w\.\+\-]+\Z/
+               if not s.content =~ /\A(application|audio|image|message|text|model|multipart|text|video|example|chemical)\/[\w\.\+\-]+\Z/
                   result[ :warn ] << {
                      :error_id => :formatType,
                      :message => "Element 'format' ('#{ format }') must be internet media type.",

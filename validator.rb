@@ -24,7 +24,8 @@ end
 
 class JuNii2Validator
    #JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2.xsd"
-   JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2-3_0.xsd"
+   #JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2-3_0.xsd"
+   JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2-3-1.xsd"
    JUNII2_NAMESPACE = "http://irdb.nii.ac.jp/oai"
    NIIsubject = %w[
     全般
@@ -367,6 +368,8 @@ class JuNii2Validator
                      :languageType
                   when /is not a valid value of the atomic type \'xs:anyURI\'/
                      :anyURI
+                  when /is not a valid value of the atomic type \'\{.*?\}:versionType\'/
+                     :versionType
                   else
                      nil
                   end
@@ -444,7 +447,7 @@ class JuNii2Validator
             elem = metadata.find( "//junii2:grantid", "junii2:#{ junii2_ns }" )
             if not elem.empty?
                niitype_e = metadata.find( "//junii2:NIItype", "junii2:#{ junii2_ns }" )
-               niitype = niitype_e.content
+               niitype = niitype_e.first.content
                if niitype != "Thesis or Dissertation"
                   result[ :error ] << {
                      :error_id => niitypeThesis,

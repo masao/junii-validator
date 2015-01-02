@@ -1,2 +1,1 @@
-AddHandler cgi-script .rb
 DirectoryIndex index.cgi

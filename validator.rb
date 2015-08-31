@@ -490,7 +490,7 @@ class JuNii2Validator
                   if not regexp.match val
                      result[ :warn ] << {
                         :error_id => :identifierType,
-                        :message => "Element '#{ identifier_elem }' ('#{ val }') should be encoded with #{ identifier_elem.upcase } format.",
+                        :message => "Element '#{ identifier_elem }' ('#{ val }') should be encoded with #{ identifier_elem.to_s.upcase } format.",
                         :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                       "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
 		     }

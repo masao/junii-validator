@@ -13,8 +13,8 @@
 onload="document.getElementById('form_option').style.display='block';document.getElementById('toggle_option').style.display='none'"
 <% end %>
 >
-<!-- hhmts start --> <div class="last-update">最終更新日: 2013年03月30日</div>
-<!-- hhmts end -->
+<% mtime = %w(validator.rb validator.rhtml).map{|f| File.mtime f }.sort[-1] %>
+<div class="last-update">最終更新日: <%= mtime.strftime '%Y年%m月%d日' %></div>
 <h1>JuNii2 Validator</h1>
 <div class="form">
 <form action="<%=h @cgi.script_name %>" method="get" name="url">

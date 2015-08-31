@@ -262,16 +262,6 @@ class JuNii2Validator
                         :error_id => :junii2_namespace,
 			:link => :ListMetadataFormats,
                      }
-                     # Fallback to old namespace.
-                     xsd_uri = URI.parse( JUNII2_XSD )
-                     res, = http( xsd_uri ).get( xsd_uri.request_uri )
-                     xml = res.body.gsub( /#{ Regexp.escape( JUNII2_NAMESPACE ) }/sm ){|m| junii2_ns }
-                     parser = LibXML::XML::Parser.string( xml )
-                     #parser = LibXML::XML::Parser.file( "junii2.xsd" )
-                     doc = parser.parse
-                     #doc.root.attributes[ 'targetNamespace' ] = junii2_ns
-                     #doc.root.attributes[ 'xmlns' ] = junii2_ns
-                     @xml_schema = LibXML::XML::Schema.document( doc )
                   end
                end
             end
@@ -379,12 +369,18 @@ class JuNii2Validator
                   :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                 "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
                }
-               if error_id == :wrong_root_element
+               if error_id == :wrong_root_element 
+                  if metadata.root.name != 'junii2'
+                     metadata.root.name = 'junii2'
+                  end
 		  junii2_ns = LibXML::XML::Namespace.new( metadata.root, 'junii2', JUNII2_NAMESPACE )
 		  metadata.root.namespaces.namespace = junii2_ns
 		  metadata.root.each do |junii2_element|
 		     junii2_element.namespaces.namespace = junii2_ns
 		  end
+                  #metadata = LibXML::XML::Document.string( metadata.to_s )
+                  STDERR.puts metadata.root.to_s
+                  STDERR.puts metadata.root.namespaces.map{|n| n.to_s }.inspect
 		  retry
 	       end
             end

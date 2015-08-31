@@ -22,7 +22,7 @@ p {
 
 .form {
   /*text-align: center;*/
-  width: 60%;
+  width: 80%;
   margin: auto;
   font-size: 2;
 }
@@ -32,7 +32,7 @@ input { padding: 2px; }
 }
 
 .help-text {
-  width: 70%;
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
 }

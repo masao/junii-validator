@@ -503,7 +503,7 @@ class JuNii2Validator
                elem = metadata.find( "//junii2:#{ volnum_elem }", "junii2:#{ junii2_ns }" )
                elem.each do |s|
                   volume = s.content
-                  if not volume =~ /\A[\d\-\/\.]+\Z/o
+                  if not volume =~ /\A\w?[\d\-\/\.]+\Z/o
                      result[ :warn ] << {
                         :error_id => :volumeType,
                         :message => "Element '#{ volnum_elem }' ('#{ volume }') must be encoded with numeric format.",
@@ -519,7 +519,7 @@ class JuNii2Validator
                elem = metadata.find( "//junii2:#{ page_elem }", "junii2:#{ junii2_ns }" )
                elem.each do |s|
                   page = s.content
-                  if not page =~ /\A[\w]+\Z/o
+                  if not page =~ /\A[\w\-\.]+\Z/o
                      result[ :warn ] << {
                         :error_id => :pageType,
                         :message => "Element '#{ page_elem }' ('#{ page }') must be encoded with numeric format.",
@@ -563,11 +563,13 @@ class JuNii2Validator
             STDERR.puts junii2_ns
             niitype_e = metadata.find( "//junii2:NIItype", "junii2:#{ junii2_ns }" )
             niitype = niitype_e.first.content if niitype_e.first.respond_to? :content
+            textversion_e = metadata.find( "//junii2:textversion", "junii2:#{ junii2_ns }" )
+            textversion = textversion_e.first.content if textversion_e.first.respond_to? :content
             fulltexturl = metadata.find( "//junii2:fullTextURL", "junii2:#{ junii2_ns }" )
             %w( grantid dateofgranted degreename grantor ).each do |grant_elem|
                elem = metadata.find( "//junii2:#{ grant_elem }", "junii2:#{ junii2_ns }" )
                if niitype and niitype == "Thesis or Dissertation"
-                  if not fulltexturl.empty?
+                  if textversion == "ETD"
                      if elem.empty?
                         result[ :error ] << {
                            :error_id => :niitypeThesis,

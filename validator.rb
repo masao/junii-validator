@@ -364,11 +364,11 @@ class JuNii2Validator
                      :issnType
                   when /is not a valid value of the atomic type \'\{.*\}numberType\'/
                      :numberType
-                  when /is not a valid value of the union type \'\{.*\}languageType\'/
+                  when /is not a valid value of the (union|atomic) type \'\{.*\}languageType\'/
                      :languageType
                   when /is not a valid value of the atomic type \'xs:anyURI\'/
                      :anyURI
-                  when /is not a valid value of the atomic type \'\{.*?\}:versionType\'/
+                  when /is not a valid value of the atomic type \'\{.*?\}versionType\'/
                      :versionType
                   else
                      nil
@@ -379,6 +379,14 @@ class JuNii2Validator
                   :identifier => e.parent.find( "./oai:header/oai:identifier",
                                                 "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
                }
+               if error_id == :wrong_root_element
+		  junii2_ns = LibXML::XML::Namespace.new( metadata.root, 'junii2', JUNII2_NAMESPACE )
+		  metadata.root.namespaces.namespace = junii2_ns
+		  metadata.root.each do |e|
+		     e.namespaces.namespace = junii2_ns
+		  end
+		  retry
+	       end
             end
 
             # junii2 guideline version 1.0: creator

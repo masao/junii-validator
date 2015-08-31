@@ -5,7 +5,14 @@ require "cgi"
 require "erb"
 require "date"
 
-require "validator.rb"
+begin
+   require "validator.rb"
+rescue LoadError
+   require_relative "validator.rb"
+end
+if defined? Encoding
+   Encoding.default_external = 'utf-8'
+end
 
 begin
    @cgi = CGI.new

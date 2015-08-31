@@ -382,8 +382,8 @@ class JuNii2Validator
                if error_id == :wrong_root_element
 		  junii2_ns = LibXML::XML::Namespace.new( metadata.root, 'junii2', JUNII2_NAMESPACE )
 		  metadata.root.namespaces.namespace = junii2_ns
-		  metadata.root.each do |e|
-		     e.namespaces.namespace = junii2_ns
+		  metadata.root.each do |junii2_element|
+		     junii2_element.namespaces.namespace = junii2_ns
 		  end
 		  retry
 	       end

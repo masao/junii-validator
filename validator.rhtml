@@ -48,6 +48,7 @@ OAI-PMHサーバが、<a href="http://www.nii.ac.jp/irp/archive/system/junii2.ht
     ["http://mitizane.ll.chiba-u.jp/cgi-bin/oai/oai2.0", "千葉大学 CURATOR"],
     ["http://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php", "慶応大学 KOARA"],
     ["http://petit.lib.yamaguchi-u.ac.jp/infolib/oai_repository/repository", "山口大学 YUNOCA"],
+    ["http://tsukuba.repo.nii.ac.jp/oai", "筑波大学 つくばリポジトリ"],
    ].each do |url, label| %>
   <li><a href="?url=<%=h url %>"><%=h label %></a>
       <span class="recent"><a href="?url=<%=h url %>&amp;from=<%=h (Date.today-30).to_s %>">（直近一ヶ月分をチェック）</a>

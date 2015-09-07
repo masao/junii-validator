@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # $Id$
 
-require "validator.rb"
+require_relative "../validator.rb"
 
 describe "validator.rb" do
    TEST_SITE = [

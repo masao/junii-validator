@@ -1,2 +1,7 @@
-source "http://rubygems.org"
+source "https://rubygems.org"
+
+ruby "2.2.2"
+gem "puma"
 gem "libxml-ruby"
+gem "sinatra"
+

@@ -9,27 +9,26 @@
 <title>JuNii2 Validator</title>
 </head>
 <body
-<% if data %>
+<% if @data %>
 onload="document.getElementById('form_option').style.display='block';document.getElementById('toggle_option').style.display='none'"
 <% end %>
 >
-<% mtime = %w(validator.rb validator.rhtml).map{|f| File.mtime f }.sort[-1] %>
-<div class="last-update">最終更新日: <%= mtime.strftime '%Y年%m月%d日' %></div>
+<div class="last-update">最終更新日: <%= last_modified.strftime '%Y年%m月%d日' %></div>
 <h1>JuNii2 Validator</h1>
 <div class="form">
-<form action="<%=h @cgi.script_name %>" method="get" name="url">
-<input type="text" name="url" value="<%=h( url || "http://" ) %>" size="70" />
+<form action="<%=h request.script_name %>" method="get" name="url">
+<input type="text" name="url" value="<%=h( @url || "http://" ) %>" size="70" />
 <input type="submit" value="  Validate!  " /><br>
 <div id="toggle_option">
 <a href="#" onclick="document.getElementById('form_option').style.display='block';document.getElementById('toggle_option').style.display='none';">詳細設定 &raquo;</a>
 </div>
 <div id="form_option" style="display:none">
 <label for="from">From (yyyy-mm-dd):</label>
-<input type="text" name="from" value="<%=h options[:from] %>" size="20"/>
+<input type="text" name="from" value="<%=h @options[:from] %>" size="20"/>
 <label for="until">Until (yyyy-mm-dd):</label>
-<input type="text" name="until" value="<%=h options[:until] %>" size="20"/><br>
+<input type="text" name="until" value="<%=h @options[:until] %>" size="20"/><br>
 <label for="set">Set:</label>
-<input type="text" name="set" value="<%=h options[:set] %>"/>
+<input type="text" name="set" value="<%=h @options[:set] %>"/>
 </div>
 </form>
 </div>
@@ -37,10 +36,10 @@ onload="document.getElementById('form_option').style.display='block';document.ge
 <p>
 OAI-PMHサーバが、<a href="http://www.nii.ac.jp/irp/archive/system/junii2.html">JuNii2メタデータ</a>に則ったXML形式を出力しているかを、XML Schemaにもとづいた、データの妥当性検証により確認します。
 上記の入力欄に OAI-PMH サーバの「ベースURL」（baseURL）を入力してください。
-<a href="<%= HELP_URL %>">→ 詳細・ヘルプ</a>
+<a href="<%=h help_url %>">→ 詳細・ヘルプ</a>
 </p>
 </div>
-<% if not data %>
+<% if not @data %>
 <p>例:</p>
 <ul>
 <% [["http://repository.kulib.kyoto-u.ac.jp/dspace-oai/request","京都大学 KURENAI"],
@@ -62,29 +61,29 @@ OAI-PMHサーバが、<a href="http://www.nii.ac.jp/irp/archive/system/junii2.ht
 </ul>
 <% else %>
 <div id="message">
-<% if data[ :error ].empty? and data[ :warn ].empty? %>
+<% if @data[ :error ].empty? and @data[ :warn ].empty? %>
 <p id="success">
 成功!!
 OAI-PMHを通じて取得したレコードに問題は見つかりませんでした。
 </p>
 <% end %>
 <% [ :info, :error, :warn ].each do |k| %>
-<% next if data[ k ].empty? %>
+<% next if @data[ k ].empty? %>
 <div id="<%=h k %>">
-<h2><%=h k.to_s.capitalize %> : <%=h data[ k ].size %></h2>
+<h2><%=h k.to_s.capitalize %> : <%=h @data[ k ].size %></h2>
 <ol>
-<% data[ k ].each do |e| %>
+<% @data[ k ].each do |e| %>
   <% if e.kind_of?( Hash ) %>
   <li><%=h e[ :message ] %>
       <% if e[ :error_id ] %>
-      <a href="<%= HELP_URL %>#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
+      <a href="<%=h help_url %>#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
       <% end %>
       <% if e[ :link ] == :ListMetadataFormats %>
-      <br>at <a href="<%=h validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
+      <br>at <a href="<%=h @validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
       <% elsif e[ :link ] == :ListRecords %>
-      <br>at <a href="<%=h validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=junii2<%= "&" + options.map{|k,v| "#{k}=#{ CGI.escape v }" }.join("&") if not options.empty? %>">ListRecords</a>
+      <br>at <a href="<%=h @validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=junii2<%= "&" + @options.map{|k,v| "#{k}=#{ CGI.escape v }" }.join("&") if not @options.empty? %>">ListRecords</a>
       <% elsif e[ :identifier ] %>
-      <br>for <a href="<%=h validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=junii2"><%=h e[ :identifier ] %></a>
+      <br>for <a href="<%=h @validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=junii2"><%=h e[ :identifier ] %></a>
       <% end %>
   <% else %>
   <li><%=h e %>
@@ -94,9 +93,9 @@ OAI-PMHを通じて取得したレコードに問題は見つかりませんで�
 </div>
 <% end %>
 <% end %>
-<% if data and data[ :next_token ] %>
+<% if @data and @data[ :next_token ] %>
 <p class="next_token">
-<a href="?url=<%=h validator.baseurl %>&amp;resumptionToken=<%=h data[ :next_token ] %>">続きのレコードをチェックする</a>
+<a href="?url=<%=h @validator.baseurl %>&amp;resumptionToken=<%=h @data[ :next_token ] %>">続きのレコードをチェックする</a>
 </p>
 <% end %>
 <hr />

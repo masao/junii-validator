@@ -103,12 +103,14 @@ OAI-PMHを通じて取得したレコードに問題は見つかりませんで�
       <% if e[ :error_id ] %>
       <a href="<%=h help_url %>#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
       <% end %>
+      <% if @validator.respond_to? :baseurl %>
       <% if e[ :link ] == :ListMetadataFormats %>
       <br>at <a href="<%=h @validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
       <% elsif e[ :link ] == :ListRecords %>
       <br>at <a href="<%=h @validator.baseurl %>?verb=ListRecords&amp;metadataPrefix=junii2<%= "&" + @options.map{|k,v| "#{k}=#{ CGI.escape v }" }.join("&") if not @options.empty? %>">ListRecords</a>
       <% elsif e[ :identifier ] %>
       <br>for <a href="<%=h @validator.baseurl %>?verb=GetRecord&amp;identifier=<%=h e[ :identifier ] %>&amp;metadataPrefix=junii2"><%=h e[ :identifier ] %></a>
+      <% end %>
       <% end %>
   <% else %>
   <li><%=h e %>

@@ -52,8 +52,8 @@ onload="document.getElementById('form_option').style.display='block';document.ge
 <div id="tabs-2">
 <div class="form">
 <form action="<%=h request.script_name %>" method="POST">
-<textarea name="xml" rows="10" cols="70"><%=h @xml %></textarea>
-<input type="submit" value="  Validate!  " /><br>
+<textarea name="xml" rows="10" cols="70" placeholder="<%=h %Q|<junii2 xmlns="#{ JuNii2Validator::JUNII2_NAMESPACE }" version="3.1"></junii2>| %>"><%=h @xml %></textarea>
+<input type="submit" value="  Validate!  " />
 </div>
 </div>
 </div>
@@ -93,7 +93,7 @@ OAI-PMHを通じて取得したレコードに問題は見つかりませんで�
 </p>
 <% end %>
 <% [ :info, :error, :warn ].each do |k| %>
-<% next if @data[ k ].empty? %>
+<% next if @data[ k ].nil? or @data[ k ].empty? %>
 <div id="<%=h k %>">
 <h2><%=h k.to_s.capitalize %> : <%=h @data[ k ].size %></h2>
 <ol>

@@ -621,8 +621,16 @@ class JuNii2ValidatorFromString < JuNii2Validator
    end
    def validate
       parser = LibXML::XML::Parser.string( @xml )
-      doc = parser.parse
-      validate_junii2( doc )
+      begin
+        doc = parser.parse
+        validate_junii2( doc )
+      rescue LibXML::XML::Error => err
+        { :error => [
+            :error_id => :parse_error,
+            :message => "XML parse error: #{ err.message }",
+          ]
+        }
+      end
    end
 end
 

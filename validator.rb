@@ -341,254 +341,256 @@ class JuNii2Validator
             if metadata.root.nil? or e.child.empty?	# adhoc for XooNips.
                metadata.root = e.child.next.copy( true )
             end
-            if metadata.root.namespaces.namespace.nil?
-               result[ :error ] << {
-                  :message => "junii2 namespace is not specified.",
-                  :error_id => :no_junii2_namespace,
-		  :link => :ListRecords,
-               }
-               junii2_ns_obj = LibXML::XML::Namespace.new( metadata.root, nil, JUNII2_NAMESPACE )
-               metadata.root.namespaces.namespace =junii2_ns_obj
-               metadata = LibXML::XML::Document.string( metadata.to_s )
-               junii2_ns = JUNII2_NAMESPACE
+            identifier = e.parent.find( "./oai:header/oai:identifier",
+                                       "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+            validate_junii2( metadata, identifier ).each do |k, v|
+               result[k] += v
             end
-            begin
-               metadata.validate_schema( @xml_schema )
-            rescue LibXML::XML::Error => err
-               # err.message
-               error_id =
-                  case err.message
-                  when /No matching global declaration available for the validation root/
-                     :wrong_root_element
-                  when /This element is not expected. Expected is (one of )?\( .* \)/
-                     :sequence
-                  when /is not a valid value of the atomic type \'\{.*\}issnType\'/
-                     :issnType
-                  when /is not a valid value of the atomic type \'\{.*\}numberType\'/
-                     :numberType
-                  when /is not a valid value of the (union|atomic) type \'\{.*\}languageType\'/
-                     :languageType
-                  when /is not a valid value of the atomic type \'xs:anyURI\'/
-                     :anyURI
-                  when /is not a valid value of the atomic type \'\{.*?\}versionType\'/
-                     :versionType
-                  else
-                     nil
-                  end
+         end
+      end
+      result
+   end
+
+   def validate_junii2( metadata, identifier = nil )
+      result = {
+         :warn => [],
+         :error=> [],
+         :info => [],
+      }
+      if metadata.root.namespaces.namespace.nil?
+         result[ :error ] << {
+            :message => "junii2 namespace is not specified.",
+            :error_id => :no_junii2_namespace,
+            :link => :ListRecords,
+         }
+         junii2_ns_obj = LibXML::XML::Namespace.new( metadata.root, nil, JUNII2_NAMESPACE )
+         metadata.root.namespaces.namespace =junii2_ns_obj
+         metadata = LibXML::XML::Document.string( metadata.to_s )
+         junii2_ns = JUNII2_NAMESPACE
+      end
+      begin
+         metadata.validate_schema( @xml_schema )
+      rescue LibXML::XML::Error => err
+         # err.message
+         error_id =
+            case err.message
+            when /No matching global declaration available for the validation root/
+               :wrong_root_element
+            when /This element is not expected. Expected is (one of )?\( .* \)/
+               :sequence
+            when /is not a valid value of the atomic type \'\{.*\}issnType\'/
+               :issnType
+            when /is not a valid value of the atomic type \'\{.*\}numberType\'/
+               :numberType
+            when /is not a valid value of the (union|atomic) type \'\{.*\}languageType\'/
+               :languageType
+            when /is not a valid value of the atomic type \'xs:anyURI\'/
+               :anyURI
+            when /is not a valid value of the atomic type \'\{.*?\}versionType\'/
+               :versionType
+            else
+               nil
+            end
+         error = {
+            :message => "XML Schema error: #{ err.message }",
+            :error_id => error_id,
+            :identifier => identifier,
+         }
+         result[ :error ] << error
+         if error_id == :wrong_root_element
+            if metadata.root.name != 'junii2'
+               metadata.root.name = 'junii2'
+            end
+            junii2_ns_obj = LibXML::XML::Namespace.new( metadata.root, 'junii2', JUNII2_NAMESPACE )
+            metadata.root.namespaces.namespace = junii2_ns_obj
+            metadata.root.each do |junii2_element|
+               junii2_element.namespaces.namespace = junii2_ns_obj
+            end
+            junii2_ns = JUNII2_NAMESPACE
+            retry
+         end
+      end
+
+      # junii2 guideline version 1.0: creator (& contributor)
+      %w( creator contributor ).each do |creator_elem|
+         creators = metadata.find( "//junii2:#{ creator_elem }", "junii2:#{ junii2_ns }" )
+         creators.each_with_index do |creator, idx|
+            if creators.size > 1 and idx > 0 and creator.content =~ /\A[ア-ン　，,\s]+\Z/
+               result[ :warn ] << {
+                  :error_id => :katakana_creator,
+                  :message => "Creator '#{ creator.content }' contains only Katakana characters.",
+                  :identifier => identifier
+               }
+            end
+            if not creator.content =~ /, / and creator.content.size < 50
+               result[ :warn ] << {
+                  :error_id => :no_comma_creator,
+                  :message => "#{ creator_elem.capitalize } '#{ creator.content }' does not contain any separators between family and given name.",
+                  :identifier => identifier
+               }
+            end
+         end
+      end
+
+      # junii2 guideline version 1.0: NIIsubject
+      elem = metadata.find( "//junii2:NIIsubject", "junii2:#{ junii2_ns }" )
+      elem.each do |s|
+         if not NIIsubject.include?( s.content )
+            result[ :error ] << {
+               :error_id => :NIIsubject,
+               :message => "Element 'NIIsubject' contains values not defined in the vocabrary: '#{ s.content }'",
+               :identifier => identifier
+            }
+         end
+      end
+      # junii2 guideline version 1.0: subjectType
+      %w( NDC NDLC DDC LCC UDC ).each do |subject|
+         elem = metadata.find( "//junii2:#{ subject }", "junii2:#{ junii2_ns }" )
+         elem.each do |s|
+            if not s.content =~ /\A[\w\.]+\Z/o
+               result[ :warn ] << {
+                  :error_id => :subjectType,
+                  :message => "Element '#{ subject }' contains characters other than numerics: '#{ s.content }'",
+                  :identifier => identifier
+               }
+            elsif subject == 'NDC' and not s.content =~ /\A[0-9\.]+\Z/o
+               result[ :warn ] << {
+                  :error_id => :subjectType,
+                  :message => "Element '#{ subject }' contains characters other than numerics: '#{ s.content }'",
+                  :identifier => identifier
+               }
+            end
+         end
+      end
+
+      # junii2 guideline version 1.0: format
+      elem = metadata.find( "//junii2:format", "junii2:#{ junii2_ns }" )
+      elem.each do |s|
+         format = s.content
+         if not s.content =~ /\A(application|audio|image|message|text|model|multipart|text|video|example|chemical)\/[\w\.\+\-]+\Z/
+            result[ :warn ] << {
+               :error_id => :formatType,
+               :message => "Element 'format' ('#{ format }') must be internet media type.",
+               :identifier => identifier
+            }
+         end
+      end
+
+      # junii2 guideline version 1.0: doi, 3.0: selfDOI
+      IDENTIFIER_URI_TYPE_REGEXP.each do |identifier_elem, regexp|
+         elem = metadata.find( "//junii2:#{ identifier_elem }", "junii2:#{ junii2_ns }" )
+         elem.each do |s|
+            val = s.content
+            if not regexp.match val
+               result[ :warn ] << {
+                  :error_id => :identifierType,
+                  :message => "Element '#{ identifier_elem }' ('#{ val }') should be encoded with URI format.",
+                  :identifier => identifier
+               }
+            end
+         end
+      end
+
+      # junii2 guideline version 1.0: isbn
+      IDENTIFIER_TYPE_REGEXP.each do |identifier_elem, regexp|
+         elem = metadata.find( "//junii2:#{ identifier_elem }", "junii2:#{ junii2_ns }" )
+         elem.each do |s|
+            val = s.content
+            if not regexp.match val
+               result[ :warn ] << {
+                  :error_id => :identifierType,
+                  :message => "Element '#{ identifier_elem }' ('#{ val }') should be encoded with #{ identifier_elem.to_s.upcase } format.",
+                  :identifier => identifier
+               }
+            end
+         end
+      end
+
+      # junii2 guideline version 1.0: volume & issue
+      %w( volume issue ).each do |volnum_elem|
+         elem = metadata.find( "//junii2:#{ volnum_elem }", "junii2:#{ junii2_ns }" )
+         elem.each do |s|
+            volume = s.content
+            if not volume =~ /\A\w?[\d\-\/\.]+\Z/o
+               result[ :warn ] << {
+                  :error_id => :volumeType,
+                  :message => "Element '#{ volnum_elem }' ('#{ volume }') must be encoded with numeric format.",
+                  :identifier => identifier
+               }
+            end
+         end
+      end
+
+      # junii2 guideline version 1.0: spage & epage
+      %w( spage epage ).each do |page_elem|
+         elem = metadata.find( "//junii2:#{ page_elem }", "junii2:#{ junii2_ns }" )
+         elem.each do |s|
+            page = s.content
+            if not page =~ /\A[\w\-\.]+\Z/o
+               result[ :warn ] << {
+                  :error_id => :pageType,
+                  :message => "Element '#{ page_elem }' ('#{ page }') must be encoded with numeric format.",
+                  :identifier => identifier
+               }
+            end
+         end
+      end
+
+      # junii2 guideline version 1.0: NIIspatial
+      elem = metadata.find( "//junii2:NIIspatial", "junii2:#{ junii2_ns }" )
+      elem.each do |s|
+         val = s.content
+         if not NIIspatial.include? val
+            result[ :warn ] << {
+               :error_id => :NIIspatialType,
+               :message => "Element 'NIIspatial' ('#{ val }') must be selected from the pre-defined list.",
+               :identifier => identifier
+            }
+         end
+      end
+
+      # junii2 guideline version 1.0: NIItemporal
+      elem = metadata.find( "//junii2:NIItemporal", "junii2:#{ junii2_ns }" )
+      elem.each do |s|
+         val = s.content
+         if not NIItemporal.include? val
+            result[ :warn ] << {
+               :error_id => :NIItemporalType,
+               :message => "Element 'NIItemporal' ('#{ val }') must be selected from the pre-defined list.",
+               :identifier => identifier
+            }
+         end
+      end
+
+      # junii2 guideline version 3.0: grantid
+      STDERR.puts metadata.to_s
+      STDERR.puts junii2_ns
+      niitype_e = metadata.find( "//junii2:NIItype", "junii2:#{ junii2_ns }" )
+      niitype = niitype_e.first.content if niitype_e.first.respond_to? :content
+      textversion_e = metadata.find( "//junii2:textversion", "junii2:#{ junii2_ns }" )
+      textversion = textversion_e.first.content if textversion_e.first.respond_to? :content
+      fulltexturl = metadata.find( "//junii2:fullTextURL", "junii2:#{ junii2_ns }" )
+      %w( grantid dateofgranted degreename grantor ).each do |grant_elem|
+         elem = metadata.find( "//junii2:#{ grant_elem }", "junii2:#{ junii2_ns }" )
+         if niitype and niitype == "Thesis or Dissertation"
+            if textversion == "ETD"
+               if elem.empty?
+                  result[ :error ] << {
+                     :error_id => :niitypeThesis,
+                     :message => "Element '#{ grant_elem }' is empty. It must be included when ETD is deposited.",
+                     :identifier => e.parent.find( "./oai:header/oai:identifier",
+                                                  "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
+                  }
+               end
+            end
+         else
+            if not elem.empty?
                result[ :error ] << {
-                  :message => "XML Schema error: #{ err.message }",
-                  :error_id => error_id,
+                  :error_id => :niitypeThesis,
+                  :message => "Element 'NIItype' ('#{ niitype }') should be 'Thesis or Dissertation' when ETD is deposited.",
                   :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                "oai:http://www.openarchives.org/OAI/2.0/" )[0].content
+                                                "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
                }
-               if error_id == :wrong_root_element 
-                  if metadata.root.name != 'junii2'
-                     metadata.root.name = 'junii2'
-                  end
-		  junii2_ns_obj = LibXML::XML::Namespace.new( metadata.root, 'junii2', JUNII2_NAMESPACE )
-		  metadata.root.namespaces.namespace = junii2_ns_obj
-		  metadata.root.each do |junii2_element|
-		     junii2_element.namespaces.namespace = junii2_ns_obj
-		  end
-                  junii2_ns = JUNII2_NAMESPACE
-		  retry
-	       end
-            end
-
-            # junii2 guideline version 1.0: creator (& contributor)
-            %w( creator contributor ).each do |creator_elem|
-               creators = metadata.find( "//junii2:#{ creator_elem }", "junii2:#{ junii2_ns }" )
-               creators.each_with_index do |creator, idx|
-                  if creators.size > 1 and idx > 0 and creator.content =~ /\A[ア-ン　，,\s]+\Z/
-                     result[ :warn ] << {
-                        :error_id => :katakana_creator,
-                        :message => "Creator '#{ creator.content }' contains only Katakana characters.",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-                     }
-                  end
-                  if not creator.content =~ /, / and creator.content.size < 50
-                     result[ :warn ] << {
-                        :error_id => :no_comma_creator,
-                        :message => "#{ creator_elem.capitalize } '#{ creator.content }' does not contain any separators between family and given name.",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-                     }
-                  end
-               end
-            end
-
-	    # junii2 guideline version 1.0: NIIsubject
-	    elem = metadata.find( "//junii2:NIIsubject", "junii2:#{ junii2_ns }" )
-	    elem.each do |s|
-	       if not NIIsubject.include?( s.content )
-	          result[ :error ] << {
-		     :error_id => :NIIsubject,
-		     :message => "Element 'NIIsubject' contains values not defined in the vocabrary: '#{ s.content }'",
-		     :identifier => e.parent.find( "./oai:header/oai:identifier",
-		                                                        "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		  }
-	       end
-	    end
-            # junii2 guideline version 1.0: subjectType
-            %w( NDC NDLC DDC LCC UDC ).each do |subject|
-               elem = metadata.find( "//junii2:#{ subject }", "junii2:#{ junii2_ns }" )
-               elem.each do |s|
-                  if not s.content =~ /\A[\w\.]+\Z/o
-                     result[ :warn ] << {
-                        :error_id => :subjectType,
-                        :message => "Element '#{ subject }' contains characters other than numerics: '#{ s.content }'",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-                     }
-                  elsif subject == 'NDC' and not s.content =~ /\A[0-9\.]+\Z/o
-                     result[ :warn ] << {
-                        :error_id => :subjectType,
-                        :message => "Element '#{ subject }' contains characters other than numerics: '#{ s.content }'",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-                     }
-                  end
-               end
-            end
-
-            # junii2 guideline version 1.0: format
-            elem = metadata.find( "//junii2:format", "junii2:#{ junii2_ns }" )
-            elem.each do |s|
-               format = s.content
-               if not s.content =~ /\A(application|audio|image|message|text|model|multipart|text|video|example|chemical)\/[\w\.\+\-]+\Z/
-                  result[ :warn ] << {
-                     :error_id => :formatType,
-                     :message => "Element 'format' ('#{ format }') must be internet media type.",
-                     :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                   "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		  }
-	       end
-            end
-
-            # junii2 guideline version 1.0: doi, 3.0: selfDOI
-            IDENTIFIER_URI_TYPE_REGEXP.each do |identifier_elem, regexp|
-               elem = metadata.find( "//junii2:#{ identifier_elem }", "junii2:#{ junii2_ns }" )
-               elem.each do |s|
-                  val = s.content
-                  if not regexp.match val
-                     result[ :warn ] << {
-                        :error_id => :identifierType,
-                        :message => "Element '#{ identifier_elem }' ('#{ val }') should be encoded with URI format.",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		     }
-	          end
-	       end
-            end
-
-            # junii2 guideline version 1.0: isbn
-            IDENTIFIER_TYPE_REGEXP.each do |identifier_elem, regexp|
-               elem = metadata.find( "//junii2:#{ identifier_elem }", "junii2:#{ junii2_ns }" )
-               elem.each do |s|
-                  val = s.content
-                  if not regexp.match val
-                     result[ :warn ] << {
-                        :error_id => :identifierType,
-                        :message => "Element '#{ identifier_elem }' ('#{ val }') should be encoded with #{ identifier_elem.to_s.upcase } format.",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		     }
-	          end
-	       end
-            end
-
-            # junii2 guideline version 1.0: volume & issue
-            %w( volume issue ).each do |volnum_elem|
-               elem = metadata.find( "//junii2:#{ volnum_elem }", "junii2:#{ junii2_ns }" )
-               elem.each do |s|
-                  volume = s.content
-                  if not volume =~ /\A\w?[\d\-\/\.]+\Z/o
-                     result[ :warn ] << {
-                        :error_id => :volumeType,
-                        :message => "Element '#{ volnum_elem }' ('#{ volume }') must be encoded with numeric format.",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		     }
-	          end
-	       end
-            end
-
-            # junii2 guideline version 1.0: spage & epage
-            %w( spage epage ).each do |page_elem|
-               elem = metadata.find( "//junii2:#{ page_elem }", "junii2:#{ junii2_ns }" )
-               elem.each do |s|
-                  page = s.content
-                  if not page =~ /\A[\w\-\.]+\Z/o
-                     result[ :warn ] << {
-                        :error_id => :pageType,
-                        :message => "Element '#{ page_elem }' ('#{ page }') must be encoded with numeric format.",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		     }
-	          end
-	       end
-            end
-
-            # junii2 guideline version 1.0: NIIspatial
-            elem = metadata.find( "//junii2:NIIspatial", "junii2:#{ junii2_ns }" )
-            elem.each do |s|
-               val = s.content
-               if not NIIspatial.include? val
-                  result[ :warn ] << {
-                     :error_id => :NIIspatialType,
-                     :message => "Element 'NIIspatial' ('#{ val }') must be selected from the pre-defined list.",
-                     :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                   "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		  }
-	       end
-            end
-
-            # junii2 guideline version 1.0: NIItemporal
-            elem = metadata.find( "//junii2:NIItemporal", "junii2:#{ junii2_ns }" )
-            elem.each do |s|
-               val = s.content
-               if not NIItemporal.include? val
-                  result[ :warn ] << {
-                     :error_id => :NIItemporalType,
-                     :message => "Element 'NIItemporal' ('#{ val }') must be selected from the pre-defined list.",
-                     :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                   "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-		  }
-	       end
-            end
-
-            # junii2 guideline version 3.0: grantid
-            STDERR.puts metadata.to_s
-            STDERR.puts junii2_ns
-            niitype_e = metadata.find( "//junii2:NIItype", "junii2:#{ junii2_ns }" )
-            niitype = niitype_e.first.content if niitype_e.first.respond_to? :content
-            textversion_e = metadata.find( "//junii2:textversion", "junii2:#{ junii2_ns }" )
-            textversion = textversion_e.first.content if textversion_e.first.respond_to? :content
-            fulltexturl = metadata.find( "//junii2:fullTextURL", "junii2:#{ junii2_ns }" )
-            %w( grantid dateofgranted degreename grantor ).each do |grant_elem|
-               elem = metadata.find( "//junii2:#{ grant_elem }", "junii2:#{ junii2_ns }" )
-               if niitype and niitype == "Thesis or Dissertation"
-                  if textversion == "ETD"
-                     if elem.empty?
-                        result[ :error ] << {
-                           :error_id => :niitypeThesis,
-                           :message => "Element '#{ grant_elem }' is empty. It must be included when ETD is deposited.",
-                           :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                         "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-                        }
-                     end
-                  end
-               else
-                  if not elem.empty?
-                     result[ :error ] << {
-                        :error_id => :niitypeThesis,
-                        :message => "Element 'NIItype' ('#{ niitype }') should be 'Thesis or Dissertation' when ETD is deposited.",
-                        :identifier => e.parent.find( "./oai:header/oai:identifier",
-                                                      "oai:http://www.openarchives.org/OAI/2.0/" )[0].content,
-                     }
-                  end
-               end
             end
          end
       end
@@ -609,6 +611,18 @@ class JuNii2Validator
       http.open_timeout = 30
       http.read_timeout = 30
       http
+   end
+end
+
+class JuNii2ValidatorFromString < JuNii2Validator
+   def initialize( xml )
+      @xml = xml
+      @xml_schema = LibXML::XML::Schema.new( JUNII2_XSD )
+   end
+   def validate
+      parser = LibXML::XML::Parser.string( @xml )
+      doc = parser.parse
+      validate_junii2( doc )
    end
 end
 

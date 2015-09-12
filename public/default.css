@@ -24,7 +24,7 @@ p {
   /*text-align: center;*/
   width: 80%;
   margin: auto;
-  font-size: 2;
+  /*font-size: 12px;*/
 }
 input { padding: 2px; }
 #form_option {

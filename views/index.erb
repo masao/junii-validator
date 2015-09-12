@@ -1,12 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<!doctype html>
+<html lang="ja" xml:lang="ja">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8" />
 <link rev="made" href="mailto:tmasao@acm.org" />
 <link rel="stylesheet" href="default.css" type="text/css" />
 <title>JuNii2 Validator</title>
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+<script>
+$(function() {
+  $( "#tabs" ).tabs({
+<% if @xml %>
+    active: 1
+<% end %>
+  });
+});
+</script>
 </head>
 <body
 <% if @data %>
@@ -15,8 +25,14 @@ onload="document.getElementById('form_option').style.display='block';document.ge
 >
 <div class="last-update">最終更新日: <%= last_modified.strftime '%Y年%m月%d日' %></div>
 <h1>JuNii2 Validator</h1>
+<div id="tabs">
+<ul>
+<li><a href="#tabs-1">Validate by baseURL</a></li>
+<li><a href="#tabs-2">Validate by XML text</a></li>
+</ul>
+<div id="tabs-1">
 <div class="form">
-<form action="<%=h request.script_name %>" method="get" name="url">
+<form action="<%=h request.script_name %>" method="GET">
 <input type="text" name="url" value="<%=h( @url || "http://" ) %>" size="70" />
 <input type="submit" value="  Validate!  " /><br>
 <div id="toggle_option">
@@ -30,7 +46,16 @@ onload="document.getElementById('form_option').style.display='block';document.ge
 <label for="set">Set:</label>
 <input type="text" name="set" value="<%=h @options[:set] %>"/>
 </div>
+</div>
 </form>
+</div>
+<div id="tabs-2">
+<div class="form">
+<form action="<%=h request.script_name %>" method="POST">
+<textarea name="xml" rows="10" cols="70"><%=h @xml %></textarea>
+<input type="submit" value="  Validate!  " /><br>
+</div>
+</div>
 </div>
 <div class="help-text">
 <p>

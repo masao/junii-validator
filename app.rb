@@ -19,6 +19,17 @@ class App < Sinatra::Base
     erb :index
   end
 
+  post "/" do
+    @xml = params[ "xml" ]
+    @options = {}
+    @data = nil
+    if not @xml.nil? and not @xml.empty?
+      @validator = JuNii2ValidatorFromString.new( @xml )
+      @data = @validator.validate
+    end
+    erb :index
+  end
+
   helpers ERB::Util
   helpers do
     def help_url

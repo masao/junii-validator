@@ -103,7 +103,7 @@ OAI-PMHを通じて取得したレコードに問題は見つかりませんで�
       <% if e[ :error_id ] %>
       <a href="<%=h help_url %>#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
       <% end %>
-      <% if @validator.respond_to? :baseurl %>
+      <% if @validator.baseurl %>
       <% if e[ :link ] == :ListMetadataFormats %>
       <br>at <a href="<%=h @validator.baseurl %>?verb=ListMetadataFormats">ListMetadataFormats</a>
       <% elsif e[ :link ] == :ListRecords %>

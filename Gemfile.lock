@@ -19,3 +19,6 @@ DEPENDENCIES
   libxml-ruby
   puma
   sinatra
+
+BUNDLED WITH
+   1.10.6

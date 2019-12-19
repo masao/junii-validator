@@ -3,7 +3,7 @@ GEM
   specs:
     libxml-ruby (2.8.0)
     puma (2.13.4)
-    rack (1.6.4)
+    rack (1.6.12)
     rack-protection (1.5.3)
       rack
     sinatra (1.4.6)

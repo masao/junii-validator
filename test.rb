@@ -3,7 +3,7 @@
 
 require 'test/unit'
 
-require "validator.rb"
+require_relative "validator.rb"
 
 class TestJuNII2Validator < Test::Unit::TestCase
    TEST_SITE = [

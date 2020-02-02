@@ -25,7 +25,7 @@ end
 class JuNii2Validator
    #JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2.xsd"
    #JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2-3_0.xsd"
-   JUNII2_XSD = "http://irdb.nii.ac.jp/oai/junii2-3-1.xsd"
+   JUNII2_XSD = "https://irdb.nii.ac.jp/oai/junii2-3-1.xsd"
    JUNII2_NAMESPACE = "http://irdb.nii.ac.jp/oai"
    NIIsubject = %w[
     全般
@@ -207,7 +207,11 @@ class JuNii2Validator
    attr_reader :baseurl
    def initialize( url )
       @baseurl = URI.parse( url )
-      @xml_schema = LibXML::XML::Schema.new( JUNII2_XSD )
+      schema = http(URI.parse JUNII2_XSD).start do |con|
+        con.get(JUNII2_XSD)
+      end
+      schema_doc = LibXML::XML::Document.string(schema.body)
+      @xml_schema = LibXML::XML::Schema.document(schema_doc)
    end
 
    def validate( options = {} )

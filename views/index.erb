@@ -101,7 +101,7 @@ OAI-PMHを通じて取得したレコードに問題は見つかりませんで�
   <% if e.kind_of?( Hash ) %>
   <li><%=h e[ :message ] %>
       <% if e[ :error_id ] %>
-      <a href="<%=h help_url %>#<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
+      <a href="<%=h help_url %>#user-content-<%=h e[:error_id ] %>" title="これはなに？">[#<%=h e[:error_id ] %>?]</a>
       <% end %>
       <% if @validator.baseurl %>
       <% if e[ :link ] == :ListMetadataFormats %>

@@ -33,7 +33,8 @@ class App < Sinatra::Base
   helpers ERB::Util
   helpers do
     def help_url
-      "http://drf.lib.hokudai.ac.jp/drf/index.php?tech%2Fnote%2Fgeneral%2FOAI-PMH%20validator"
+      #obsolete: "http://drf.lib.hokudai.ac.jp/drf/index.php?tech%2Fnote%2Fgeneral%2FOAI-PMH%20validator"
+      "https://github.com/masao/junii-validator/wiki/Help"
     end
     def last_modified
       %w(app.rb validator.rb views/index.erb).map{|f| File.mtime f }.sort[-1]

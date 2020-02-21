@@ -2,7 +2,7 @@
 
 国立情報学研究所（NII）が策定した機関リポジトリメタデータ交換用形式 junii2 メタデータを、XMLスキーマに基づいて検査するスクリプトです。
 
-* Web版デモ: http://masao.jpn.org/etc/junii-validator/
+* Web版デモ: http://junii2-validator.herokuapp.com/
 * ソースコード: http://github.com/masao/junii-validator
 
 ## TODO

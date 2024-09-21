@@ -224,7 +224,7 @@ class JuNii2Validator
          STDERR.puts @baseurl
          # Identify
          res, = con.get( @baseurl.merge_request_uri( "verb=Identify" ) )
-	 #res.value
+      	#res.value
          xml = res.body
          parser = LibXML::XML::Parser.string( xml )
          doc = parser.parse
@@ -238,6 +238,7 @@ class JuNii2Validator
                result[ :warn ] << "#{ e } is empty."
             end
          end
+         #STDERR.puts "Identify verified."
 
          # ListMetadataFormats
          junii2_ns = nil
@@ -294,11 +295,11 @@ class JuNii2Validator
          options.each do |k, v|
             case k
             when :from, :until, :set
-               params << "&#{ k }=#{ URI.escape( v ) }"
+               params << "&#{ k }=#{ URI.encode_www_form_component( v ) }"
             end
          end
 	 if options[ :resumptionToken ]
-	    params = "&resumptionToken=#{ URI.escape( options[ :resumptionToken ] ) }"
+	    params = "&resumptionToken=#{ URI.encode_www_form_component( options[ :resumptionToken ] ) }"
 	 end
          res, = con.get( @baseurl.merge_request_uri( "verb=ListRecords&#{ params }" ) )
          if not res.code == "200"
@@ -402,15 +403,20 @@ class JuNii2Validator
          }
          result[ :error ] << error
          if error_id == :wrong_root_element
+            #STDERR.puts metadata.root.namespaces.default
             if metadata.root.name != 'junii2'
                metadata.root.name = 'junii2'
             end
-            junii2_ns_obj = LibXML::XML::Namespace.new( metadata.root, 'junii2', JUNII2_NAMESPACE )
-            metadata.root.namespaces.namespace = junii2_ns_obj
+            new_node = LibXML::XML::Node.new('junii2')
+            namespace_prefix = metadata.root.namespaces.namespace&.prefix
+            junii2_ns = LibXML::XML::Namespace.new(new_node, 'junii2', JUNII2_NAMESPACE)
+            new_node.namespaces.namespace = junii2_ns
             metadata.root.each do |junii2_element|
-               junii2_element.namespaces.namespace = junii2_ns_obj
+               new_node_child = LibXML::XML::Node.new(junii2_element.name)
+               new_node_child.content = junii2_element.content
+               new_node << new_node_child
             end
-            junii2_ns = JUNII2_NAMESPACE
+            metadata.root = new_node
             retry
          end
       end
@@ -567,8 +573,8 @@ class JuNii2Validator
       end
 
       # junii2 guideline version 3.0: grantid
-      STDERR.puts metadata.to_s
-      STDERR.puts junii2_ns
+      #STDERR.puts metadata.to_s
+      #STDERR.puts junii2_ns
       niitype_e = metadata.find( "//junii2:NIItype", "junii2:#{ junii2_ns }" )
       niitype = niitype_e.first.content if niitype_e.first.respond_to? :content
       textversion_e = metadata.find( "//junii2:textversion", "junii2:#{ junii2_ns }" )

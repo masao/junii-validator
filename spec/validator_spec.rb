@@ -5,11 +5,11 @@ require_relative "../validator.rb"
 
 describe "validator.rb" do
    TEST_SITE = [
-                "http://eprints.lib.hokudai.ac.jp/dspace-oai/request",
-                "http://repository.kulib.kyoto-u.ac.jp/dspace-oai/request",
-                "http://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php",
-                "http://petit.lib.yamaguchi-u.ac.jp/infolib/oai_repository/repository",
-                "http://ousar.lib.okayama-u.ac.jp/oai/Request",
+                "https://eprints.lib.hokudai.ac.jp/dspace-oai/request",
+                "https://repository.kulib.kyoto-u.ac.jp/dspace-oai/request",
+                "https://koara.lib.keio.ac.jp/xoonips/modules/xoonips/oai.php",
+                "https://petit.lib.yamaguchi-u.ac.jp/infolib/oai_repository/repository",
+                "https://ousar.lib.okayama-u.ac.jp/oai/Request",
                ]
    it "should validate several IR sites without any errors." do
       TEST_SITE.each do |url|
@@ -19,7 +19,7 @@ describe "validator.rb" do
             e.should be_a_kind_of( Hash )
             e.should have_key( :error_id )
          end
-         result.should has_key( :next_token )
+         result.should have_key( :next_token )
       end
    end
 

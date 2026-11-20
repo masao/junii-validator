@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.2.4"
+ruby "4.0.10"
 gem "puma"
 gem "libxml-ruby"
 gem "sinatra"

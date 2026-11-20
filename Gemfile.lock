@@ -2,44 +2,42 @@ GEM
   remote: https://rubygems.org/
   specs:
     base64 (0.3.0)
-    diff-lcs (1.5.1)
-    libxml-ruby (5.0.3)
+    diff-lcs (1.6.2)
+    libxml-ruby (6.0.0)
     logger (1.7.0)
-    mustermann (3.0.4)
-      ruby2_keywords (~> 0.0.1)
+    mustermann (3.1.1)
     nio4r (2.7.5)
-    puma (7.2.1)
+    puma (8.1.2)
       nio4r (~> 2.0)
     rack (3.2.8)
-    rack-protection (4.2.0)
+    rack-protection (4.2.2)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
     rack-session (2.1.2)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
-    rspec (3.13.0)
+    rspec (3.13.2)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
-    rspec-core (3.13.1)
+    rspec-core (3.13.7)
       rspec-support (~> 3.13.0)
-    rspec-expectations (3.13.3)
+    rspec-expectations (3.13.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-mocks (3.13.1)
+    rspec-mocks (3.13.9)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-support (3.13.1)
-    ruby2_keywords (0.0.5)
-    sinatra (4.2.0)
+    rspec-support (3.13.8)
+    sinatra (4.2.2)
       logger (>= 1.6.0)
       mustermann (~> 3.0)
       rack (>= 3.0.0, < 4)
-      rack-protection (= 4.2.0)
+      rack-protection (= 4.2.2)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
-    tilt (2.6.1)
+    tilt (2.9.0)
 
 PLATFORMS
   ruby
@@ -50,5 +48,8 @@ DEPENDENCIES
   rspec
   sinatra
 
+RUBY VERSION
+  ruby 4.0.10
+
 BUNDLED WITH
-   2.5.3
+  4.0.20

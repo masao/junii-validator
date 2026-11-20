@@ -10,7 +10,11 @@ require "optparse"
 require "pp"
 
 require "rubygems"
+begin
 require "libxml"
+rescue LoadError
+require "libxml-ruby"
+end
 
 class URI::HTTP
    def merge_request_uri( query_s )
